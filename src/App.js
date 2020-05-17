@@ -29,7 +29,13 @@ import { Context } from './Contexts'
 import appReducer from './reducers'
 
 // Set up axios
-axios.defaults.baseURL = process.env.REACT_APP_USERS_API;
+switch (process.env.NODE_ENV) {
+  case ("production"):
+    axios.defaults.baseURL = process.env.REACT_APP_USERS_API_PROD; break;
+  case ("development"):
+    axios.defaults.baseURL = process.env.REACT_APP_USERS_API_DEV; break;
+}
+console.log(process.env.NODE_ENV, axios.defaults, axios.defaults.baseURL)
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.auth_token}`;
 
 // Set up stripe
