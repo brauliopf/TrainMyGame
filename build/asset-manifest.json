@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.js": "/static/js/main.683e039e.chunk.js",
+    "main.js.map": "/static/js/main.683e039e.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.50d61215.js",
+    "runtime-main.js.map": "/static/js/runtime-main.50d61215.js.map",
+    "static/js/2.9667624a.chunk.js": "/static/js/2.9667624a.chunk.js",
+    "static/js/2.9667624a.chunk.js.map": "/static/js/2.9667624a.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.2572f5744639244e5c5a3a48b5f3366e.js": "/precache-manifest.2572f5744639244e5c5a3a48b5f3366e.js",
+    "service-worker.js": "/service-worker.js",
+    "static/js/2.9667624a.chunk.js.LICENSE.txt": "/static/js/2.9667624a.chunk.js.LICENSE.txt",
+    "static/media/about-1.png": "/static/media/about-1.3ae03897.png",
+    "static/media/about-2.png": "/static/media/about-2.e262b66b.png",
+    "static/media/about-3.png": "/static/media/about-3.74d3344c.png",
+    "static/media/lacrosse_coach.jpg": "/static/media/lacrosse_coach.a0aa731e.jpg",
+    "static/media/lacrosse_player.jpg": "/static/media/lacrosse_player.5b9f155f.jpg",
+    "static/media/lacrosse_session.jpg": "/static/media/lacrosse_session.a4aa9dc4.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.50d61215.js",
+    "static/js/2.9667624a.chunk.js",
+    "static/js/main.683e039e.chunk.js"
+  ]
+}

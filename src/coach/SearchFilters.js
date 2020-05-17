@@ -1,0 +1,95 @@
+import React, { useState, useEffect } from 'react'
+
+export default function SearchFilter(props) {
+
+  const [text, setText] = useState(props.filters.text || []);
+  const [gender, setGender] = useState(props.filters.gender || []);
+  const [position, setPosition] = useState(props.filters.position || []);
+  const [dateFrom, setDateFrom] = useState(props.filters.dateFrom || []);
+  const [dateTo, setDateTo] = useState(props.filters.dateTo || []);
+  // const [distance, setDistance] = useState(100);
+
+  const options = {
+    gender: ['male', 'female'],
+    position: ['F/O', 'Goalie', 'Mid', 'Att', 'Def', 'LSM/SSDM'],
+    distance: [5, 10, 15, 50, 100],
+    // open: true / false
+  }
+
+  const updateFilters = () => {
+    const newFilters = { text, gender, position, dateFrom, dateTo }
+    return props.setFilters(newFilters);
+  }
+
+  useEffect(() => {
+    text !== props.filters.text && setText(props.filters.text || []);
+    gender !== props.filters.gender && setGender(props.filters.gender || []);
+    position !== props.filters.position && setPosition(props.filters.position || []);
+    dateTo !== props.filters.dateTo && setDateTo(props.filters.dateTo || []);
+    dateFrom !== props.filters.dateFrom && setDateFrom(props.filters.dateFrom || []);
+  }, [props.filters])
+
+  return (
+    <div className="modal fade" id="coachFilterModal" tabIndex="-1" role="dialog">
+      <div className="modal-dialog" role="document">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Filters</h5>
+            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="my-2">
+              <p><strong>Text (name, city)</strong></p>
+              <input
+                type="text" name="textSearch" className="form-control"
+                placeholder="Search" aria-label="Search" value={text || ""}
+                onChange={e => setText(e.target.value === "" ? [] : [e.target.value])}
+              />
+            </div>
+            <div id="gender">
+              <p><strong>Gender</strong></p>
+              {options.gender.map(gndr =>
+                <div className="checkbox" key={gndr}>
+                  <label>
+                    <input type="checkbox" name={gndr}
+                      checked={gender && gender.includes(gndr) ? true : false}
+                      onChange={() => gender && gender.includes(gndr) ?
+                        setGender(gender.filter((g) => g !== gndr)) // remove
+                        : setGender(gender.concat(gndr))} // add
+                    /> {gndr === 'male' ? "Men's Lacrosse" : "Women's Lacrosse"}
+                  </label>
+                </div>
+              )}
+            </div>
+            <div id="position">
+              <p><strong>Position</strong></p>
+              {options.position.map(pos =>
+                <div className="checkbox" key={pos}>
+                  <label>
+                    <input type="checkbox" value="" name={pos}
+                      checked={position && position.includes(pos) ? true : false}
+                      onChange={position && position.includes(pos) ?
+                        e => setPosition(position.filter((p) => p !== pos)) // remove
+                        : e => setPosition(position.concat(pos))} // add
+                    /> {pos}
+                  </label>
+                </div>
+              )}
+            </div>
+            <div id="timeframe">
+              <p className="font-weight-bold">Session Date</p>
+              <label>From: <input type="date" name="dateFrom" value={dateFrom} onChange={e => { if (e.target.value !== "") setDateFrom([e.target.value]) }} /></label>
+              <label>To: <input type="date" name="dateTo" value={dateTo} onChange={e => { if (e.target.value !== "") setDateTo([e.target.value]) }} /></label>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => updateFilters()}>Save changes</button>
+            <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => { setText([]); setGender([]); setPosition([]); setDateFrom([]); setDateTo([]); props.setFilters({}) }}>Clear filters</button>
+          </div>
+        </div>
+      </div>
+    </div >
+  )
+}
