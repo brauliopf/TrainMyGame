@@ -8,9 +8,9 @@ import Select from 'react-select';
 import { positions } from '../util/input';
 import LocationInput from './LocationInput.js';
 import CoachCardId from '../coach/CoachCardId';
-import { config } from '../util/s3';
+import { s3Config } from '../util/s3';
 
-AWS.config.update({ region: config.region, accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey });
+AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 export default function Profile() {
@@ -20,7 +20,6 @@ export default function Profile() {
   const { state, } = useContext(Context);
   const user = state.auth.user || ""
   const [data, setData] = useState({});
-  const [profilePic, setProfilePic] = useState(state.auth.user && state.auth.user.picture);
   const [sessions, setSessions] = useState([]);
   const [others, setOthers] = useState({}); // { user_id: { name, picture} }
   const [location, setLocation] = useState({});
@@ -33,10 +32,9 @@ export default function Profile() {
 
   // Effects
   useEffect(() => {
-    if (!state.auth.user); //history.push('/')
+    if (!state.auth.user);
     else {
       loadSessions(user)
-      setProfilePic(state.auth.user.picture.split("|")[0]);
 
       // set control vars for form input
       const { name, phone, picture } = state.auth.user
@@ -134,7 +132,7 @@ export default function Profile() {
   const uploadFile = (file) => { // upload file to s3
     const uploadParams = {
       ACL: "public-read",
-      Bucket: config.bucketName,
+      Bucket: s3Config.bucketName,
       Key: `avatar/${user._id}`,
       Body: file
     };
@@ -143,14 +141,15 @@ export default function Profile() {
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        const newUrl = `https://train-my-game.s3.us-east-2.amazonaws.com/${data.key}`;
+        const newUrl = `${s3Config.bucketURL}/${data.key}|${Date.now()}`;
         updateProfile({ picture: newUrl });
-        window.location.reload();
       }
     })
   }
-  const updateProfile = async data => { // send data to the user API
-    axios.put(`/api/v1/users/${state.auth.user._id}`, data);
+  const updateProfile = async dt => {
+    axios.put(`/api/v1/users/${state.auth.user._id}`, dt)
+      .then(res => { setData({ ...data, picture: '' }); return res; })
+      .then(res => setData({ ...data, picture: res.data.user.picture }))
   }
 
   // ** UI components
@@ -234,7 +233,7 @@ export default function Profile() {
         <div className="col-12 col-md-4 col-lg-3 pt-4 d-flex flex-column justify-content-start text-center">
           <div className="d-flex flex-column mx-auto my-4" id="profile-picture">
             <img
-              className="img-thumbnail" src={profilePic} alt={user.name || "avatar"}
+              className="img-thumbnail" src={data.picture && data.picture.split("|")[0]} alt={user.name || "avatar"}
               style={{ maxHeight: "180px", maxWidth: "180px" }}
             />
             <Link className="mt-1" style={{ "fontSize": "14px" }} to="#" onClick={() => $("#imageUpload").click()}><i className="fas fa-file-upload"></i> Submit Profile Head Shot </Link>

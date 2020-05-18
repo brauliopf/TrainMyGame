@@ -1,14 +1,15 @@
 import React, { useContext } from 'react';
 import { Context } from '../Contexts'
 import { Link } from 'react-router-dom';
+import { s3Config } from '../util/s3';
 
 // https://getbootstrap.com/docs/4.0/layout/grid/
 // https://getbootstrap.com/docs/4.0/utilities/spacing/ –– {property}{sides}-{breakpoint}-{size}
 export default function Home() {
 
-  const img_lacrosse_coach = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/lacrosse_coach.jpg';
-  const img_lacrosse_player = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/lacrosse_player.jpg';
-  const img_lacrosse_session = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/lacrosse_session.jpg';
+  const img_lacrosse_coach = `${s3Config.bucketURL}/app/content/lacrosse_coach.jpg`;
+  const img_lacrosse_player = `${s3Config.bucketURL}/app/content/lacrosse_player.jpg`;
+  const img_lacrosse_session = `${s3Config.bucketURL}/app/content/lacrosse_session.jpg`;
 
   const { state, dispatch } = useContext(Context);
   const user = state.auth.isAuthenticated ? state.auth.user : false

@@ -3,16 +3,16 @@ import { Context } from '../Contexts'
 import { Link } from 'react-router-dom';
 import $ from 'jquery';
 import AWS from 'aws-sdk'
-import { config } from '../util/s3';
+import { s3Config } from '../util/s3';
 
-AWS.config.update({ region: config.region, accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey });
+AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 export default function ProfilePicUpload({ setApplicationPic = () => { return; } }) {
 
   const { state, } = useContext(Context);
   const user = state.auth && state.auth.isAuthenticated && state.auth.user
-  const [picture, setPicture] = useState("https://train-my-game.s3.us-east-2.amazonaws.com/avatar/default/03.png");
+  const [picture, setPicture] = useState(`${s3Config.bucketURL}/avatar/default/03.png`);
 
   useEffect(() => {
     if (user && user.picture && user.picture.length > 0) setPicture(user.picture);
@@ -21,7 +21,7 @@ export default function ProfilePicUpload({ setApplicationPic = () => { return; }
   const uploadFile = (file) => { // upload file to s3
     const uploadParams = {
       ACL: "public-read",
-      Bucket: config.bucketName,
+      Bucket: s3Config.bucketName,
       Key: user ? `avatar/${user._id}` : `avatar/temporary/${Date.now()}`,
       Body: file
     };
@@ -30,7 +30,7 @@ export default function ProfilePicUpload({ setApplicationPic = () => { return; }
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        const newUrl = `https://train-my-game.s3.us-east-2.amazonaws.com/${data.key}`;
+        const newUrl = `${s3Config.bucketURL}/${data.key}`;
         setPicture(newUrl)
         setApplicationPic(newUrl);
       }

@@ -8,9 +8,9 @@ import Select from 'react-select';
 import { positions } from '../util/input';
 import LocationInput from '../user/LocationInput.js';
 import ExperiencesInput from './ExperiencesInput';
-import { config } from '../util/s3';
+import { s3Config } from '../util/s3';
 
-AWS.config.update({ region: config.region, accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey });
+AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 const isEmpty = obj => {
@@ -128,8 +128,8 @@ export default function Application() {
         if (data.picture.search("/temporary/") > 0) {
           const params = {
             ACL: "public-read",
-            Bucket: 'train-my-game',
-            CopySource: `train-my-game/avatar/temporary/${data.picture.split("temporary/")[1]}`,
+            Bucket: `${s3Config.bucketName}`,
+            CopySource: `${s3Config.bucketName}/avatar/temporary/${data.picture.split("temporary/")[1]}`,
             Key: `avatar/${res.data.user._id}`
           };
           s3.copyObject(params, function (err, data) {
@@ -140,7 +140,7 @@ export default function Application() {
         return res; // return the same response
       })
       .then(async res => {
-        const url = `https://train-my-game.s3.us-east-2.amazonaws.com/avatar/${res.data.user._id}`
+        const url = `${s3Config.bucketURL}/avatar/${res.data.user._id}`
         const loginData = { token: res.data.token, user: { ...res.data.user, picture: url } }
         dispatch({ type: 'LOGIN', data: loginData });
         if (data.picture.search("/temporary/") > 0) await axios.put(`/api/v1/users/${res.data.user._id}`, { picture: url });

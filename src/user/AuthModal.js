@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios'
 import Select from 'react-select';
 import { positions } from '../util/input';
+import { s3Config } from '../util/s3';
 
 export default function AuthModal() {
 
@@ -34,7 +35,7 @@ export default function AuthModal() {
       })
   }
 
-  const getRandomavatar = () => `https://train-my-game.s3.us-east-2.amazonaws.com/${`avatar/default/0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
+  const getRandomavatar = () => `${s3Config.bucketURL}/avatar/default/${`0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
 
   return (
     <div className="modal fade" id="authModal" tabIndex="-1" role="dialog">

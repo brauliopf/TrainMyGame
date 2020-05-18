@@ -2,11 +2,12 @@ import React, { useContext } from 'react';
 import { Context } from '../Contexts'
 import { Link } from 'react-router-dom';
 import $ from 'jquery'
+import { s3Config } from '../util/s3';
 
 const HorizontalNav = (props) => {
 
   // load creative
-  const img_logo = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/layout/tmg-logo.jpg';
+  const img_logo = `${s3Config.bucketURL}/app/layout/tmg-logo.jpg`;
   const { state, dispatch } = useContext(Context);
 
   const getUserName = () => {
