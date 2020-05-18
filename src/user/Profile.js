@@ -141,7 +141,7 @@ export default function Profile() {
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        const newUrl = `${s3Config.bucketURL}/${data.key}|${Date.now()}`;
+        const newUrl = `${s3Config.bucketURL}/${data.key}`;
         updateProfile({ picture: newUrl });
       }
     })
@@ -233,7 +233,7 @@ export default function Profile() {
         <div className="col-12 col-md-4 col-lg-3 pt-4 d-flex flex-column justify-content-start text-center">
           <div className="d-flex flex-column mx-auto my-4" id="profile-picture">
             <img
-              className="img-thumbnail" src={data.picture && data.picture.split("|")[0]} alt={user.name || "avatar"}
+              className="img-thumbnail" src={data.picture && data.picture} alt={user.name || "avatar"}
               style={{ maxHeight: "180px", maxWidth: "180px" }}
             />
             <Link className="mt-1" style={{ "fontSize": "14px" }} to="#" onClick={() => $("#imageUpload").click()}><i className="fas fa-file-upload"></i> Submit Profile Head Shot </Link>
