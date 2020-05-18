@@ -2,7 +2,6 @@
 import React, { useEffect, useReducer } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
-import { config } from './util/s3';
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
@@ -70,7 +69,6 @@ const App = () => {
   }, [state]);
 
   // console.log(state)
-  console.log("s3", process.env.NODE_ENV, process.env.NODE_ENV, config, process.env.NODE_ENV)
   return (
     <Context.Provider value={{ state, dispatch }}>
       <Router>
