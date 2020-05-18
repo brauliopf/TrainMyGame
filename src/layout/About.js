@@ -1,9 +1,11 @@
 import React from 'react';
-import img_about_1 from '../resources/about-1.png';
-import img_about_2 from '../resources/about-2.png';
-import img_about_3 from '../resources/about-3.png';
 
 export default () => {
+
+  const img_about_1 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/01.png';
+  const img_about_2 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/02.png';
+  const img_about_3 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/03.png';
+
   return (
     <div id="row mb-5 about">
       <h3 className="col-12">About Us</h3>

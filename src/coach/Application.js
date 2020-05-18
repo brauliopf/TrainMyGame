@@ -8,14 +8,7 @@ import Select from 'react-select';
 import { positions } from '../util/input';
 import LocationInput from '../user/LocationInput.js';
 import ExperiencesInput from './ExperiencesInput';
-
-const config = {
-  bucketName: 'train-my-game',
-  dirName: 'profile', /* optional */
-  region: 'us-east-2',
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-}
+import { config } from '../util/s3';
 
 AWS.config.update({ region: config.region, accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });

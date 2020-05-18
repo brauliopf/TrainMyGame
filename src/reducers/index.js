@@ -48,7 +48,7 @@ function alertReducer(state, action) {
 // the a single global state object
 // reducer Y must return state for action taken by reducer X
 export default function appReducer(state, action) {
-  console.log("reducer", state)
+
   return {
     auth: authReducer(state.auth, action),
     error: errorReducer(state, action),

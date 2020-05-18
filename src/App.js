@@ -2,6 +2,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
+import { config } from './util/s3';
 
 // Stripe
 import { loadStripe } from "@stripe/stripe-js";
@@ -35,7 +36,6 @@ switch (process.env.NODE_ENV) {
   case ("development"):
     axios.defaults.baseURL = process.env.REACT_APP_USERS_API_DEV; break;
 }
-console.log(process.env.NODE_ENV, axios.defaults, axios.defaults.baseURL)
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.auth_token}`;
 
 // Set up stripe
@@ -70,6 +70,7 @@ const App = () => {
   }, [state]);
 
   // console.log(state)
+  console.log("s3", process.env.NODE_ENV, config)
   return (
     <Context.Provider value={{ state, dispatch }}>
       <Router>
@@ -102,6 +103,3 @@ const App = () => {
 }
 
 export default App;
-
-// TUTORIALS
-// - https://github.com/PacktPublishing/Bootstrap-4---Create-4-Real-World-Projects

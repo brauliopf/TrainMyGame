@@ -7,30 +7,34 @@ import { positions } from '../util/input';
 
 export default function AuthModal() {
 
-  const initialState = { name: '', email: '', password: '', token: '', gender: '', position: '', experience: '', dob: '', formRegister: true }
+  const initialState = {
+    name: '', email: '', password: '', gender: '', picture: '',
+    position: '', experience: '', dob: '', formRegister: true
+  }
   const { dispatch } = useContext(Context);
   const [data, setData] = useState(initialState);
-  const [user, setUser] = useState({});
   const options = positions.map(p => ({ value: p, label: p, key: p }));
 
-  // Effect
-  useEffect(() => {
-    if (user && user.data && !user.error) {
-      dispatch({ type: data.formRegister ? 'REGISTER' : 'LOGIN', data: user.data });
-      setData(initialState);
-      dispatch({ type: 'MODAL_OFF', component: "authModal" });
-    }
-    if (user && user.error) {
-    }
-  }, [user])
-
   // Auxiliary
-  const authenticate = data => {
-    const reducer = (accumulator, currentValue) => accumulator.concat(currentValue['value']);
-    if (data.formRegister) data.position = data.position.reduce(reducer, [])
-    axios.post(data.formRegister ? "/api/v1/users" : "/api/v1/users/login", data)
-      .then(user => setUser(user))
+  const authenticate = (user) => {
+    // Set register payload
+    if (user.formRegister) {
+      const reducer = (accumulator, currentValue) => accumulator.concat(currentValue['value']);
+      user = { ...user, picture: getRandomavatar(), position: user.position.reduce(reducer, []) }
+    }
+
+    // Execute register or login
+    axios.post(data.formRegister ? "/api/v1/users" : "/api/v1/users/login", user)
+      .then(user => {
+        if (user && user.data && !user.error) {
+          dispatch({ type: data.formRegister ? 'REGISTER' : 'LOGIN', data: user.data });
+          setData(initialState);
+          dispatch({ type: 'MODAL_OFF', component: "authModal" });
+        }
+      })
   }
+
+  const getRandomavatar = () => `https://train-my-game.s3.us-east-2.amazonaws.com/${`avatar/default/0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
 
   return (
     <div className="modal fade" id="authModal" tabIndex="-1" role="dialog">
