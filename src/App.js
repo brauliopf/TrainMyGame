@@ -70,7 +70,7 @@ const App = () => {
   }, [state]);
 
   // console.log(state)
-  console.log("s3", process.env.NODE_ENV, config)
+  console.log("s3", process.env.NODE_ENV, process.env.NODE_ENV, config, process.env.NODE_ENV)
   return (
     <Context.Provider value={{ state, dispatch }}>
       <Router>
