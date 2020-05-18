@@ -32,7 +32,7 @@ export default function Profile() {
 
   // Effects
   useEffect(() => {
-    if (!state.auth.user);
+    if (!state.auth.user) history.push("/")
     else {
       loadSessions(user)
 
