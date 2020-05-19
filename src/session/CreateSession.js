@@ -7,29 +7,19 @@ export default function CreateSession() {
 
   const { state, } = useContext(Context);
   const user = state.auth.user || {}
-  const [data, setData] = useState({})
+  const initState = { title: "", max_participants: "", date: Date, start_time: "", end_time: "", price: "" }
+  const [data, setData] = useState(initState)
   const [location, setLocation] = useState({});
   const getLocation = () => location;
 
   // Effects
-  useEffect(() => {
-    setData({
-      title: "",
-      max_participants: "",
-      date: Date,
-      start_time: "",
-      end_time: "",
-      price: ""
-    })
-  }, [])
-
   useEffect(() => {
     setLocation(user.location)
   }, [user])
 
   useEffect(() => {
     setData({ ...data, location: location })
-  }, [data, location])
+  }, [location])
 
   // Auxiliary
   const formInput = (name, type, label, required) => {
@@ -43,13 +33,12 @@ export default function CreateSession() {
           type={type}
           name={name}
           className='form-control'
-          value={data && data[name]}
+          value={data && data[name] || ""}
           onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
           required={required || false}
         />
       </div>)
   }
-
   const priceInput = () => {
     return (
       <div className="input-group mb-2">
@@ -67,7 +56,6 @@ export default function CreateSession() {
         />
       </div>)
   }
-
   const submitSession = data => {
     axios.post("/api/v1/sessions/", data)
   }
@@ -95,19 +83,18 @@ export default function CreateSession() {
               </div>
               <div className="col-12 col-md-4">
                 {priceInput()}
-                {/* {formInput("price_player", "money", "Price/Player")} */}
               </div>
               <div className="col-12 col-md-4">
-                {formInput("max_articipants", "number", "Max Participants")}
+                {formInput("max_participants", "number", "Max Participants")}
               </div>
 
             </div>
 
             <div className="form-row mt-2 d-flex align-items-end">
 
-              <div class="input-group">
-                <div class="input-group-prepend d-flex">
-                  <span class="input-group-text w-100" id="">Start and End Times (EST)</span>
+              <div className="input-group">
+                <div className="input-group-prepend d-flex">
+                  <span className="input-group-text w-100" id="">Start and End Times (EST)</span>
                 </div>
                 <div className="d-flex w-100">
                   <input
