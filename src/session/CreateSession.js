@@ -2,10 +2,12 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../Contexts'
 import axios from 'axios';
 import LocationInput from '../user/LocationInput.js';
+import { useHistory } from 'react-router-dom';
 
 export default function CreateSession() {
 
   const { state, } = useContext(Context);
+  const history = useHistory();
   const user = state.auth.user || {}
   const initState = { title: "", max_participants: "", date: Date, start_time: "", end_time: "", price: "" }
   const [data, setData] = useState(initState)
@@ -57,7 +59,9 @@ export default function CreateSession() {
       </div>)
   }
   const submitSession = data => {
+    setData({ ...data, price: data.price * 100 })
     axios.post("/api/v1/sessions/", data)
+      .then(res => history.push(`/sessions/${res.data.session._id}`))
   }
 
   return (

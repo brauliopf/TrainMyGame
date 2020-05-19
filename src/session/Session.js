@@ -73,7 +73,7 @@ const Session = () => {
                 <div className="col-12 col-md-6">
                   <ul className="list-group list-group-flush" id="session-info">
                     <li className="list-group-item">Location: {getSessionAddress(session.location)}</li>
-                    <li className="list-group-item">Base price: {session.price}</li>
+                    <li className="list-group-item">Base price: ${session.price}</li>
                     {session.discountTier &&
                       <li className="list-group-item">
                         Discounted price: up to ${maxDiscountTier.price / 100} if more than {maxDiscountTier.qty} players purchase.

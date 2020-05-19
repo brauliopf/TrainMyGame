@@ -51,17 +51,17 @@ const Checkout = () => {
       <div className="col-12" id="checkout-summary">
         {(session && coach && session.agenda) &&
           <div className="row m-2 border" id="purchase-summary">
-            <div className="col-12 col-md-2 d-flex flex-column justify-content-center align-items-center align-items-md-start mt-2" id="coach-info">
+            <div className="col-12 col-lg-2 d-flex flex-column justify-content-center align-items-center text-center mt-2" id="coach-info">
               <img src={coach.picture} alt={coach.name} className="img-thumbnail rounded-circle" style={{ maxHeight: "100px", maxWidth: "100px" }} />
               <div className="font-weight-bold">
                 <span>{coach.name}</span>
               </div>
             </div>
-            <div className="col-12 col-md-5 d-flex flex-column justify-content-center mt-4 my-md-2">
+            <div className="col-12 col-lg-5 d-flex flex-column justify-content-center mt-4 my-md-2">
               <div className="mt-2">Location: {getSessionAddress(session.location)}</div>
               <div className="mt-2">Date: {(new Date(session.agenda.start)).toLocaleDateString()}</div>
             </div>
-            <div className="col-12 col-md-3 d-flex flex-column justify-content-center">
+            <div className="col-12 col-lg-3 d-flex flex-column justify-content-center">
               <div className="mt-2">Time: {(new Date(session.agenda.start)).toLocaleTimeString()}</div>
               {session.capacity && session.participants &&
                 <div className="mt-2">Open slots: {
@@ -72,24 +72,23 @@ const Checkout = () => {
                 </div>
               }
             </div>
-            {session && session.participants &&
-              <div className="col-12 col-md-2 d-flex flex-row flex-md-column justify-content-between align-items-center h-100 mt-4 my-md-2" style={{ height: "60px" }}>
-                {session.participants && <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
-                  {session.participants.map((p, index) => (
-                    index < 3 && <div className="d-flex" key={p._id}>
+            <div className="col-12 col-lg-2 d-flex flex-row flex-lg-column justify-content-center my-4">
+              {session.participants.length > 0 &&
+                <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
+                  {session.participants.map((p, index) => (index < 3 &&
+                    <div className="d-flex" key={p._id}>
                       <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} src={p.picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                     </div>)
                   )}
                 </div>}
-                <div className="my-2">
-                  Current price: <br />
-                  <span className="font-weight-bold">
-                    US$ {(session.price / 100)
-                      .toLocaleString(navigator.language, { minimumFractionDigits: 2 })}{" "}
-                  </span>
-                </div>
+              <div className="my-2 w-100 d-flex flex-column text-right">
+                Current price:
+                <span className="font-weight-bold">
+                  US$ {(session.price / 100)
+                    .toLocaleString(navigator.language, { minimumFractionDigits: 2 })}{" "}
+                </span>
               </div>
-            }
+            </div>
           </div>
         }
       </div>
