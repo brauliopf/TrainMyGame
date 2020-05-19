@@ -46,14 +46,14 @@ export default function Admin() {
             {applicants.length > 0 && applicants.map((a, index) => {
               return (
                 <li className={classnames("list-group-item", { "text-secondary": false })} key={index}>
-                  <div className="row d-flex justify-content-between">
-                    <div className="col-3">
+                  <div className="row d-flex flex-column flex-md-row justify-content-between text-center align-items-center">
+                    <div className="col-12 col-md-3">
                       <Link to={`/coaches/${a._id}`}>{a.name}</Link>
                     </div>
-                    <div className="col-6">{getLocationAddress(a.location)}</div>
-                    <div className="col-2 d-flex flex-column text-right">
-                      <button className="btn btn-sm btn-primary" id={a._id} onClick={e => handleResponse(e.target.id, true)}>Approve</button>
-                      <button className="btn btn-sm btn-secondary mt-1" id={a._id} onClick={e => handleResponse(e.target.id, false)}>Reject</button>
+                    <div className="col-12 col-md-6">{getLocationAddress(a.location)}</div>
+                    <div className="col-12 col-md-3 d-flex flex-row flex-md-column justify-content-center">
+                      <button className="btn btn-sm btn-primary m-1" id={a._id} onClick={e => handleResponse(e.target.id, true)}>Approve</button>
+                      <button className="btn btn-sm btn-secondary m-1" id={a._id} onClick={e => handleResponse(e.target.id, false)}>Reject</button>
                     </div>
                   </div>
                 </li>)

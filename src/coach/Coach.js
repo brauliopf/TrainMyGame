@@ -32,8 +32,9 @@ export default function Coach() {
         {coach.athlete.position && <li className="list-group-item">Position: {coach.athlete.position.join(", ")}</li>}
         {coach.athlete.college && <li className="list-group-item">College: {coach.athlete.college}</li>}
         {coach.athlete.team && <li className="list-group-item">Current Team: {coach.athlete.team}</li>}
-        {coach.athlete.experienceTime.player && <li className="list-group-item">Experience (Playing): {coach.athlete.experienceTime.player}</li>}
-        {coach.athlete.experienceTime.coach && <li className="list-group-item">Experience (Coaching): {coach.athlete.experienceTime.coach}</li>}
+        {coach.athlete.experience && <li className="list-group-item">Experience (Playing): {coach.athlete.experience.player || "-"}</li>}
+        {coach.athlete.experience && <li className="list-group-item">Experience (Coaching - Male): {coach.athlete.experience.coach_men}</li>}
+        {coach.athlete.experience && <li className="list-group-item">Experience (Coaching - Female): {coach.athlete.experience.coach_women}</li>}
       </ul>)
   }
 

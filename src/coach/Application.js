@@ -163,7 +163,7 @@ export default function Application() {
               <div className="col-12 col-md-8 col-lg-9 p-4">
                 <p>Complete your application. Once a submission is received, it will be reviewed by the T.M.G. Team</p>
                 <div className="form-row">
-                  <div className="col-12">
+                  <div className="col-12 col-lg-7">
                     <div className="input-group mb-2">
                       <div className="input-group-prepend">
                         <label className="input-group-text" id="email">Email</label>
