@@ -215,7 +215,7 @@ export default function Profile() {
                 Current price: <br />
                 <span className="font-weight-bold">
                   US$ {(session.price / 100)
-                    .toLocaleString(navigator.language, { minimumFractionDigits: 2 })}{" "}
+                    .toLocaleString(navigator.language, { minimumFractionDigits: 0 })}{" "}
                 </span>
               </div>
             </div>

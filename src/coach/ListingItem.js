@@ -3,22 +3,35 @@ import { Link, useHistory } from 'react-router-dom';
 import CoachCardId from './CoachCardId'
 import { months } from '../util/date';
 
-const sessionListingItems = sessions => {
+const sessionListingItems = sessions => (
+  <ul className="list-group">
+    {sessions.map(session => {
+      if (!session || !session.agenda) return;
+      const { dateString, time_str, slots } = getSessionParams(session);
+      return (
+        <li className="list-group-item p-1">
+          <Link className="dropdown-item" key={session._id} to={`/sessions/${session._id}`}>
+            <div className="">{`${session.title || "Lacrosse Session"}`}</div>
+            <div className="">{`${dateString}, ${time_str} – Open slots: ${slots}`}</div>
+          </Link>
+        </li>
+      )
+    })}
+  </ul>
 
-  return sessions.map(session => {
-    if (!session || !session.agenda) return;
-    const date = new Date(session.agenda.start);
-    const time = { hours: date.getUTCHours() - date.getTimezoneOffset() / 60, minutes: date.getUTCMinutes() }
-    const day = date.getDate();
-    const dateString = `${months[date.getMonth()]}. ${day + 1}${day === 0 ? "st" : day === 1 ? "nd" : day === 2 ? "rd" : "th"}`;
-    const time_str = ((time.hours > 12) ? `${time.hours - 12}` : `${time.hours}`).concat(`:${time.minutes < 10 && "0"}${time.minutes}${(time.hours > 12) ? "pm" : "am"}`)
-    const slots = session.capacity ? session.capacity.max - session.participants.length : "#";
-    return (
-      <Link className="dropdown-item" key={session._id} to={`/sessions/${session._id}`}>
-        {`${session.title || "Lacrosse Session"}: ${dateString}, ${time_str} – ${slots} open slots`}
-      </Link>
-    )
-  })
+)
+
+const getSessionParams = session => {
+  const date = new Date(session.agenda.start);
+  const time = { hours: date.getUTCHours() - date.getTimezoneOffset() / 60, minutes: date.getUTCMinutes() }
+  const day = date.getDate();
+  const dateString =
+    `${months[date.getMonth()]}. ${day}${day === 1 ? "st" : day === 2 ? "nd" : day === 3 ? "rd" : "th"}`;
+  const time_str =
+    ((time.hours > 12) ? `${time.hours - 12}` : `${time.hours}`)
+      .concat(`:${time.minutes < 10 && "0"}${time.minutes}${(time.hours > 12) ? "pm" : "am"}`)
+  const slots = session.capacity ? session.capacity.max - session.participants.length : "#";
+  return { dateString, time_str, slots }
 }
 
 const getCoachAddress = location => {
@@ -52,7 +65,7 @@ export default function ListingItem(props) {
               <Link className="btn btn-secondary dropdown-toggle" to="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {sessions.length} Open session{sessions.length > 1 ? "s" : ""}
               </Link>
-              <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <div className="dropdown-menu py-0 border-0" aria-labelledby="dropdownMenuLink">
                 {sessionListingItems(sessions)}
               </div>
             </div>
