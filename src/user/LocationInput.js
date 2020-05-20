@@ -84,6 +84,8 @@ const LocationInput = (props) => {
     // and then fill-in the corresponding field on the form.
     for (let i = 0; i < place.address_components.length; i++) {
       let addressType = place.address_components[i].types[0];
+
+      // render new place in form UI
       if (componentForm[addressType]) {
         let val = place.address_components[i][componentForm[addressType]];
 
@@ -98,6 +100,10 @@ const LocationInput = (props) => {
       }
     }
 
+    // Get place lat and long coordinates from places
+    newData.geo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }
+
+    console.log("updateLocation", newData)
     state && state.auth && state.auth.isAuthenticated ?
       dispatch({ type: "UPDATE_LOCATION", location: newData }) :
       props.setLocation({ ...props.location, ...newData })
