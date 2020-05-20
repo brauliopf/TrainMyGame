@@ -9,7 +9,7 @@ import CoachCardId from '../coach/CoachCardId'
 const Session = () => {
 
   const { state, dispatch } = useContext(Context);
-  const user = state.auth.isAuthenticated && state.auth.user || {}
+  const user = (state.auth.isAuthenticated && state.auth.user) || {}
   const [session, setSession] = useState({});
   const [coach, setCoach] = useState({});
   const [maxDiscountTier, setMaxDiscountTier] = useState({}) // { qty, price }
@@ -58,7 +58,7 @@ const Session = () => {
       <div className="row">
         <div className="col-12 d-flex justify-content-between">
           <p className="h3">{session.title}</p>
-          {(session.coach && session.coach._id === user._id || (session.participants && session.participants.map(p => p._id).includes(state.auth.isAuthenticated && state.auth.user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
+          {((session.coach && session.coach._id === user._id) || (session.participants && session.participants.map(p => p._id).includes(state.auth.isAuthenticated && state.auth.user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
             <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin()}>
               <i className="fas fa-play" /> Join
             </Link>

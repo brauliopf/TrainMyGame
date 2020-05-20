@@ -16,6 +16,15 @@ export default function SearchFilter(props) {
     // open: true / false
   }
 
+  useEffect(() => {
+    text !== props.filters.text && setText(props.filters.text || []);
+    gender !== props.filters.gender && setGender(props.filters.gender || []);
+    position !== props.filters.position && setPosition(props.filters.position || []);
+    dateTo !== props.filters.dateTo && setDateTo(props.filters.dateTo || []);
+    dateFrom !== props.filters.dateFrom && setDateFrom(props.filters.dateFrom || []);
+    distanceRange !== props.filters.distanceRange && setDistanceRange(props.filters.distanceRange || []);
+  }, [props.filters])
+
   const locationRangeInput = () => {
     return (
       <div className="my-2 d-flex flex-row justify-content-between">
@@ -23,18 +32,15 @@ export default function SearchFilter(props) {
           <div className="my-auto col-9 font-weight-bold">Distance range (less than)</div>
           <select
             className="col w-100 browser-default custom-select"
-            value={distanceRange}
-            defaultValue={0}
+            value={distanceRange[0] || ""}
+            defaultValue={distanceRange[0]}
             name="distanceRange"
-            onChange={e => setDistanceRange([e.target.value])}
+            onChange={e => { e.target.value === "0" ? setDistanceRange([]) : setDistanceRange([e.target.value]) }}
             id="select-range"
           >
-            {options.distanceRange.map(range => {
-              if (range === 0) return <option value="0">-</option>;
-              else {
-                return <option value={range}>{range}km</option>
-              }
-            })}
+            {options.distanceRange.map(range => (
+              <option value={range} key={range}>{range === 0 ? "-" : `${range}km`}</option>
+            ))}
           </select>
         </div >
       </div>)
@@ -45,14 +51,11 @@ export default function SearchFilter(props) {
     return props.setFilters(newFilters);
   }
 
-  useEffect(() => {
-    text !== props.filters.text && setText(props.filters.text || []);
-    gender !== props.filters.gender && setGender(props.filters.gender || []);
-    position !== props.filters.position && setPosition(props.filters.position || []);
-    dateTo !== props.filters.dateTo && setDateTo(props.filters.dateTo || []);
-    dateFrom !== props.filters.dateFrom && setDateFrom(props.filters.dateFrom || []);
-    distanceRange !== props.filters.distanceRange && setDistanceRange(props.filters.distanceRange || []);
-  }, [props.filters])
+  const clearFilters = () => {
+    setText([]); setGender([]); setPosition([]);
+    setDateFrom([]); setDateTo([]); setDistanceRange([]);
+    props.setFilters({})
+  }
 
   return (
     <div className="modal fade" id="coachFilterModal" tabIndex="-1" role="dialog">
@@ -116,7 +119,7 @@ export default function SearchFilter(props) {
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => updateFilters()}>Save changes</button>
-            <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => { setText([]); setGender([]); setPosition([]); setDateFrom([]); setDateTo([]); props.setFilters({}) }}>Clear filters</button>
+            <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => { clearFilters() }}>Clear filters</button>
           </div>
         </div>
       </div>

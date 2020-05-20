@@ -9,7 +9,7 @@ import MessageInput from './MessageInput'
 const Inbox = () => {
 
   const { state, } = useContext(Context);
-  const user = state.auth.isAuthenticated && state.auth.user || {}
+  const user = (state.auth.isAuthenticated && state.auth.user) || {}
   const [chats, setChats] = useState([]);
   const [messages, setMessages] = useState({});
   const [activeChat, setActiveChat] = useState({});

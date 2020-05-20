@@ -9,8 +9,8 @@ const sessionListingItems = sessions => (
       if (!session || !session.agenda) return;
       const { dateString, time_str, slots } = getSessionParams(session);
       return (
-        <li className="list-group-item p-1">
-          <Link className="dropdown-item" key={session._id} to={`/sessions/${session._id}`}>
+        <li className="list-group-item p-1" key={session._id}>
+          <Link className="dropdown-item" to={`/sessions/${session._id}`}>
             <div className="">{`${session.title || "Lacrosse Session"}`}</div>
             <div className="">{`${dateString}, ${time_str} – Open slots: ${slots}`}</div>
           </Link>
