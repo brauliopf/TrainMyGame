@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { Context } from '../Contexts'
 
 export default function SearchFilter(props) {
 
+  const { state, } = useContext(Context);
+  const user = state.auth.user || ""
   const [text, setText] = useState(props.filters.text || []);
   const [gender, setGender] = useState(props.filters.gender || []);
   const [position, setPosition] = useState(props.filters.position || []);
@@ -37,6 +40,7 @@ export default function SearchFilter(props) {
             name="distanceRange"
             onChange={e => { e.target.value === "0" ? setDistanceRange([]) : setDistanceRange([e.target.value]) }}
             id="select-range"
+            disabled={!(user && user.location)}
           >
             {options.distanceRange.map(range => (
               <option value={range} key={range}>{range === 0 ? "-" : `${range}km`}</option>

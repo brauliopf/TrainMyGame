@@ -11,7 +11,9 @@ const sessionListingItems = sessions => (
       return (
         <li className="list-group-item p-1" key={session._id}>
           <Link className="dropdown-item" to={`/sessions/${session._id}`}>
-            <div className="">{`${session.title || "Lacrosse Session"}`}</div>
+            <div className="">
+              {`${session.title || "Lacrosse Session"}`}
+            </div>
             <div className="">{`${dateString}, ${time_str} – Open slots: ${slots}`}</div>
           </Link>
         </li>

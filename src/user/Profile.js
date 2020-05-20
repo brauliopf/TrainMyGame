@@ -40,8 +40,8 @@ export default function Profile() {
       const { name, phone, picture } = state.auth.user
       const { position, college, team, gender, dob, video, bio } = state.auth.user.athlete || {}
       const { men: xp_men, women: xp_women } = (state.auth.user.athlete && state.auth.user.athlete.experienceTime) || {}
-      const { complement, street, city, state: stt, zipcode } = state.auth.user.location || {}
-      setLocation({ complement, street, city, state: stt, zipcode });
+      const { complement, street, city, state: stt, zipcode, geo } = state.auth.user.location || {}
+      setLocation({ complement, street, city, state: stt, zipcode, geo });
       setData({ location, name, phone, position, gender, dob: dob ? dob.split("T")[0] : undefined, video, college, team, xp_men, xp_women, picture, bio });
     }
   }, [user, history])
@@ -226,7 +226,7 @@ export default function Profile() {
     )
   }
 
-  console.log("profile", data)
+  // console.log("profile", data)
   return (
     <div id="profile">
       <h3>Profile</h3>

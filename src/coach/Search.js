@@ -40,7 +40,7 @@ export default function Search() {
         session.distance = calculateDistance(session.location.geo);
         const withinRange = session.distance <= parseInt(filters.distanceRange[0]) * 1000
         return withinRange ? session : undefined;
-      }).filter((obj) => obj); // required to "clean" array from null objects
+      }).filter((obj) => obj); // required to clean array from null objects
       allSessions[`${coachSessions[0]}`] = allSessions[`${coachSessions[0]}`].concat(populatedCoachSessions)
       return allSessions;
     }
