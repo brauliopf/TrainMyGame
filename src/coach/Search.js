@@ -39,6 +39,7 @@ export default function Search() {
     return !Object.values(filters).reduce(reducer, true);
   }
 
+  console.log("search", filters)
   return (
     <div id='search'>
       <SearchFilter setFilters={setFilters} filters={filters} />
@@ -57,7 +58,20 @@ export default function Search() {
           <div className="col mx-auto" id="activeFilters">
             {Object.entries(filters).map(filter => {
               return (filter[1] === undefined || filter[1].length === 0) ? "" :
-                filter[1].map(f => <div className="border p-2 mr-1 btn btn-light" id={f} key={f} name={filter[0]} onClick={(e) => removeFilter(e)}>{f} <i className="fas fa-times" id={f} name={filter[0]} /></div>)
+                filter[1].map(f => {
+                  let label = ""
+                  switch (filter[0]) {
+                    case "distanceRange": label = `< ${f}km`; break;
+                    case "dateFrom": label = `from: ${f}`; break;
+                    case "dateTo": label = `to: ${f}`; break;
+                    case "gender": label = (f === "female" ? "Women's Lacrosse" : "Men's Lacrosse"); break;
+                    default: label = f
+                  }
+                  return (
+                    <div className="border p-2 mr-1 btn btn-light" id={f} key={f} name={filter[0]} onClick={(e) => removeFilter(e)}>
+                      {label} <i className="fas fa-times" id={f} name={filter[0]} />
+                    </div>)
+                })
             })}
           </div>
 

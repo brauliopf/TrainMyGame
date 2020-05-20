@@ -226,6 +226,7 @@ export default function Profile() {
     )
   }
 
+  console.log("profile", data)
   return (
     <div id="profile">
       <h3>Profile</h3>

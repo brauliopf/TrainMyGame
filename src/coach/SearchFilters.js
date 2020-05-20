@@ -7,17 +7,41 @@ export default function SearchFilter(props) {
   const [position, setPosition] = useState(props.filters.position || []);
   const [dateFrom, setDateFrom] = useState(props.filters.dateFrom || []);
   const [dateTo, setDateTo] = useState(props.filters.dateTo || []);
-  // const [distance, setDistance] = useState(100);
+  const [distanceRange, setDistanceRange] = useState(props.filters.distanceRange || []);
 
   const options = {
     gender: ['male', 'female'],
     position: ['F/O', 'Goalie', 'Mid', 'Att', 'Def', 'LSM/SSDM'],
-    distance: [5, 10, 15, 50, 100],
+    distanceRange: [0, 3, 5, 10, 20],
     // open: true / false
   }
 
+  const locationRangeInput = () => {
+    return (
+      <div className="my-2 d-flex flex-row justify-content-between">
+        <div className="row">
+          <div className="my-auto col-9 font-weight-bold">Distance range (less than)</div>
+          <select
+            className="col w-100 browser-default custom-select"
+            value={distanceRange}
+            defaultValue={0}
+            name="distanceRange"
+            onChange={e => setDistanceRange([e.target.value])}
+            id="select-range"
+          >
+            {options.distanceRange.map(range => {
+              if (range === 0) return <option value="0">-</option>;
+              else {
+                return <option value={range}>{range}km</option>
+              }
+            })}
+          </select>
+        </div >
+      </div>)
+  }
+
   const updateFilters = () => {
-    const newFilters = { text, gender, position, dateFrom, dateTo }
+    const newFilters = { text, gender, position, dateFrom, dateTo, distanceRange }
     return props.setFilters(newFilters);
   }
 
@@ -27,6 +51,7 @@ export default function SearchFilter(props) {
     position !== props.filters.position && setPosition(props.filters.position || []);
     dateTo !== props.filters.dateTo && setDateTo(props.filters.dateTo || []);
     dateFrom !== props.filters.dateFrom && setDateFrom(props.filters.dateFrom || []);
+    distanceRange !== props.filters.distanceRange && setDistanceRange(props.filters.distanceRange || []);
   }, [props.filters])
 
   return (
@@ -78,6 +103,11 @@ export default function SearchFilter(props) {
                 </div>
               )}
             </div>
+
+            <div className="distanceRange">
+              {locationRangeInput()}
+            </div>
+
             <div id="timeframe">
               <p className="font-weight-bold">Session Date</p>
               <label>From: <input type="date" name="dateFrom" value={dateFrom} onChange={e => { if (e.target.value !== "") setDateFrom([e.target.value]) }} /></label>
