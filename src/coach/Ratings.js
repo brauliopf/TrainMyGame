@@ -18,7 +18,7 @@ export default function Ratings(props) {
       <div id="rate">
         {getStars(props.rating ? props.rating.rate : 0)}
       </div>
-      <span>({props.rating && props.rating.qtyReviews || 0} reviews)</span>
+      <span>({(props.rating && props.rating.qtyReviews) || 0} reviews)</span>
     </div>
   )
 }

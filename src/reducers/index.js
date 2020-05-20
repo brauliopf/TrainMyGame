@@ -1,4 +1,4 @@
-import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_APPROVED, ADD_ALERT, REMOVE_ALERT } from './Actions'
+import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_APPROVED, ADD_ALERT } from './Actions'
 import $ from 'jquery'
 import authReducer from './AuthReducer'
 import axios from 'axios';

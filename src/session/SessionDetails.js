@@ -23,32 +23,35 @@ export default function SessionDetails({ session, coach, users }) {
   return (
     <div key={session._id}>
       {(session && coach) &&
-        <div className="row border text-center d-flex justify-content-between p-2 my-2">
+        <div className="row border text-center d-flex justify-content-between py-2 my-2">
 
-          <div className="col-12 col-md-3 my-auto text-center">
-            <CoachCardId coach={coach} detail={false} />
+          <div className="col-12 col-md-3">
+            <CoachCardId coach={coach} />
           </div>
 
-          <div className="col-12 col-md-4 d-flex flex-column justify-content-center mt-4 my-md-2">
-            <div className="mt-2">Location: {getSessionAddress(session.location)}</div>
-            <div className="mt-2">Date: {(new Date(session.agenda.start)).toLocaleDateString()}</div>
+          <div className="col-12 col-md-4 d-flex flex-column justify-content-center">
+            <div className="mt-2 mt-md-0">Location: {getSessionAddress(session.location)}</div>
+            <div className="mt-2 d-flex flex-row justify-content-center">
+              Date: {(new Date(session.agenda.start)).toLocaleDateString()}
+              ({(new Date(session.agenda.start)).toLocaleTimeString()})
+            </div>
           </div>
           <div className="col-12 col-md-3 d-flex flex-column justify-content-center">
-            <div className="mt-2">Time: {(new Date(session.agenda.start)).toLocaleTimeString()}</div>
+
             {session.capacity && session.participants &&
               <div>
-                <div className="mt-2">Open slots: {
+                <div className="mt-2">{
                   (session.capacity.max - session.participants.length > 1) ?
                     `${session.capacity.max - session.participants.length} slots available`
                     : "Last slot available"
                 }
                 </div>
-                <div className="my-2">
-                  Current price: <br />
-                  <span className="font-weight-bold">
+                <div className="my-2 justify-content-center d-flex flex-row flex-md-column flex-lg-row">
+                  <div className="mx-1">Current price:</div>
+                  <div className="font-weight-bold">
                     US$ {(session.price / 100)
-                      .toLocaleString(navigator.language, { minimumFractionDigits: 2 })}{" "}
-                  </span>
+                      .toLocaleString(navigator.language, { minimumFractionDigits: 0 })}{" "}
+                  </div>
                 </div>
               </div>
             }

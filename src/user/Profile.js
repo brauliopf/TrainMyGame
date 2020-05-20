@@ -32,17 +32,17 @@ export default function Profile() {
 
   // Effects
   useEffect(() => {
-    if (!state.auth.user) history.push("/")
+    if (!state.auth.user); //history.push("/")
     else {
       loadSessions(user)
 
       // set control vars for form input
       const { name, phone, picture } = state.auth.user
-      const { position, college, team, gender, dob, video } = state.auth.user.athlete || {}
+      const { position, college, team, gender, dob, video, bio } = state.auth.user.athlete || {}
       const { men: xp_men, women: xp_women } = (state.auth.user.athlete && state.auth.user.athlete.experienceTime) || {}
       const { complement, street, city, state: stt, zipcode } = state.auth.user.location || {}
       setLocation({ complement, street, city, state: stt, zipcode });
-      setData({ location, name, phone, position, gender, dob: dob ? dob.split("T")[0] : undefined, video, college, team, xp_men, xp_women, picture });
+      setData({ location, name, phone, position, gender, dob: dob ? dob.split("T")[0] : undefined, video, college, team, xp_men, xp_women, picture, bio });
     }
   }, [user, history])
 
@@ -70,7 +70,7 @@ export default function Profile() {
           type={type}
           name={name}
           className='form-control'
-          value={data && data[name] || ""}
+          value={(data && data[name]) || ""}
           onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
         />
       </div>)
@@ -177,7 +177,7 @@ export default function Profile() {
     const coach = others[session.coach]
 
     return (
-      <div className="col-12 my-2" key={session._id}>
+      <div className="col-12" key={session._id}>
         {(session && others && session.agenda) &&
           <div className="row border bg-light">
 
@@ -258,7 +258,7 @@ export default function Profile() {
                   type="url"
                   name="video"
                   className='form-control'
-                  value={data && data.video || ""}
+                  value={(data && data.video) || ""}
                   onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
                 />
               </div>
@@ -347,11 +347,13 @@ export default function Profile() {
 
       <div className="row my-4">
         <div className="col-12 d-flex justify-content-between">
-          <div className="h3">Upcoming sessions</div>
-          {user.athlete && user.athlete.type === "coach" && <Link to="/sessions/new" className="btn btn-primary my-2 my-md-0">Create a session</Link>}
+          <h4>Upcoming sessions</h4>
+          {user.athlete && user.athlete.type === "coach" &&
+            <Link to="/sessions/new" className="btn btn-primary my-2 my-md-0">Create a session</Link>
+          }
         </div>
         <div className="col-12">
-          <div className="row my-2">
+          <div className="row">
             {getUpcomingSessions(user, sessions)}
           </div>
         </div>

@@ -71,7 +71,7 @@ export default function Coach() {
         <div className="mt-4" id="sessions-info">
           <h4>Upcoming sessions</h4>
           {sessions.length > 0 && sessions.map(session => (
-            <SessionDetails session={session} coach={coach} />
+            <SessionDetails session={session} coach={coach} key={session._id} />
           ))}
         </div>}
     </div>

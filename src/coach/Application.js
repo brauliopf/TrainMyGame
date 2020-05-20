@@ -74,7 +74,7 @@ export default function Application() {
           type={type}
           name={name}
           className='form-control'
-          value={data && data[name] || ""}
+          value={(data && data[name]) || ""}
           onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
           required={required || false}
         />
@@ -151,7 +151,7 @@ export default function Application() {
   return (
     <div id="profile">
       <h3>Apply for a Coaching Position</h3>
-      <div className="row border p-4">
+      <div className="row border p-2 p-md-4">
         <div className="col-12">
           <div className="h4">Bio</div>
 

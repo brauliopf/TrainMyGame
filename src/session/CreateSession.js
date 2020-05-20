@@ -35,7 +35,7 @@ export default function CreateSession() {
           type={type}
           name={name}
           className='form-control'
-          value={data && data[name] || ""}
+          value={(data && data[name]) || ""}
           onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
           required={required || false}
         />

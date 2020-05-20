@@ -27,9 +27,13 @@ const Checkout = () => {
   const [processing, setProcessing] = useState('');
 
   // Effect
+
+
   useEffect(() => {
-    if (state.auth.isAuthenticated && !order) {
-      createPaymentIntent(id);
+    if (state.auth.isAuthenticated) {
+      !order && createPaymentIntent(id);
+    } else {
+      history.push("/")
     }
   }, [state, id, order])
 

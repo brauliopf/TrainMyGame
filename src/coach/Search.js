@@ -27,7 +27,6 @@ export default function Search() {
   };
 
   const removeFilter = (e) => {
-    console.log("removerFilter", e.target)
     let newFilters = {}
     const value = e.target.getAttribute("id")
     const type = e.target.getAttribute("name")
@@ -65,7 +64,7 @@ export default function Search() {
         </div>}
 
       <div className="row d-flex justify-content-around" id="listing">
-        {coaches.length ? coaches.map(coach => <ListingItem coach={coach} sessions={sessions[coach._id] || {}} />) :
+        {coaches.length ? coaches.map(coach => <ListingItem coach={coach} sessions={sessions[coach._id] || {}} key={coach._id} />) :
           <div className="col-12"><p className="text-center font-weight-bold text-dark mt-4">No Results Found</p>
             <p className="text-center">None of our coaches match these criteria.
                 Try broadening the search criteria and <Link to="#" className="font-weight-bold text-dark" data-toggle="modal" data-target="#coachFilterModal">searching again.</Link>
