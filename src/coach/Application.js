@@ -125,11 +125,14 @@ export default function Application() {
   const submitApplication = async data => {
     axios.post('/api/v1/users/coach-apply', data)
       .then(res => { // move temporary image to permanent folder
-        if (data.picture.search("/temporary/") > 0) {
+        if (data.picture === "" || data.picture.search("/temporary/") > 0) {
+          const source = (data.picture.search("/temporary/") > 0) ?
+            `${s3Config.bucketName}/avatar/temporary/${data.picture.split("temporary/")[1]}` :
+            `${s3Config.bucketURL}/avatar/default/03.png`
           const params = {
             ACL: "public-read",
             Bucket: `${s3Config.bucketName}`,
-            CopySource: `${s3Config.bucketName}/avatar/temporary/${data.picture.split("temporary/")[1]}`,
+            CopySource: `${source}`,
             Key: `avatar/${res.data.user._id}`
           };
           s3.copyObject(params, function (err, data) {
@@ -143,11 +146,12 @@ export default function Application() {
         const url = `${s3Config.bucketURL}/avatar/${res.data.user._id}`
         const loginData = { token: res.data.token, user: { ...res.data.user, picture: url } }
         dispatch({ type: 'LOGIN', data: loginData });
-        if (data.picture.search("/temporary/") > 0) await axios.put(`/api/v1/users/${res.data.user._id}`, { picture: url });
+        if (data.picture === "" || data.picture.search("/temporary/") > 0) await axios.put(`/api/v1/users/${res.data.user._id}`, { picture: url });
         history.push('/');
       })
   }
 
+  console.log(data)
   return (
     <div id="profile">
       <h3>Apply for a Coaching Position</h3>

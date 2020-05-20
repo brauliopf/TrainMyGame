@@ -24,16 +24,12 @@ const GroupChat = (props) => {
     sendMessage(text, { 'targetType': 'Session', target: id })
       .then(success => {
         if (success) {
-          loadMessages();
-          setText("");
+          getMessages(props.chat)
+            .then(msgs => setMessages(msgs))
+            .then(() => scrollToBottom("chat"))
+            .then(() => setText(""))
         }
       })
-  }
-
-  const loadMessages = async () => {
-    getMessages(props.chat)
-      .then(msgs => setMessages(msgs))
-      .then(() => scrollToBottom("chat"))
   }
 
   const scrollToBottom = (id) => {
@@ -55,7 +51,7 @@ const GroupChat = (props) => {
   return (
     <div id="group_chat" className="card card-body mt-2">
       <strong>Public comments</strong><hr />
-      <div className="mt-4 overflow-auto" style={{ minHeight: '300px' }} id="chat">
+      <div className="mt-4 overflow-auto" style={{ height: '300px' }} id="chat">
         {messages.data && messages.data.length > 0 &&
           messages.data.map(msg => (
             <div key={msg._id} className={classnames('msg my-4', { 'text-right': state.auth.isAuthenticated && msg.sender.id === state.auth.user._id })}>

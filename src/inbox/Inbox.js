@@ -8,26 +8,33 @@ import MessageInput from './MessageInput'
 
 const Inbox = () => {
 
+  const { state, } = useContext(Context);
+  const user = state.auth.isAuthenticated && state.auth.user || {}
   const [chats, setChats] = useState([]);
   const [messages, setMessages] = useState({});
   const [activeChat, setActiveChat] = useState({});
   const history = useHistory();
-  const { state, } = useContext(Context);
 
   // *** Effect
   useEffect(() => {
-    !state.auth.user && history.push('/')
+    if (isEmpty(user)); //history.push('/')
+    else {
+      getChats()
+        .then(data => setChats(data.data));
+    }
   }, [state, history])
 
-  useEffect(() => {
-    state.auth.isAuthenticated && getChats().then(data => { setChats(data.data); });
-  }, [state])
 
   useEffect(() => {
-    !isEmpty(activeChat) && getChatMessages(activeChat._id);
+    !isEmpty(activeChat) && loadMessages(activeChat._id)
   }, [activeChat]);
 
   // *** Auxiliary
+  const scrollToBottom = (id) => {
+    const chatDiv = document.getElementById(id);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  }
+
   const getChatUserName = chat => {
     if (isEmpty(chat)) return "Chat"
     const users = chat.users.filter(u => u._id !== state.auth.user._id).map(u => u.name)
@@ -43,11 +50,19 @@ const Inbox = () => {
     return res.data;
   };
 
-  const getChatMessages = async (chatId) => {
+  const getMessages = async (chatId) => {
     const res = await axios.get(`/api/v1/chats/${chatId}/messages`)
-    setMessages(res.data.data);
+    return res.data
   };
 
+  const loadMessages = chatId => {
+    getMessages(chatId)
+      .then(msgs => setMessages(msgs.data))
+      .then(() => scrollToBottom("messages"))
+      .catch(err => console.log(`Error loading chat messages: `, err))
+  }
+
+  console.log("return", messages)
   return (
     <div id="coach">
       <div className="row">
@@ -116,7 +131,7 @@ const Inbox = () => {
               </div>
               {!isEmpty(activeChat) &&
                 <div className="row bg-secondary pt-3" id="messageInput">
-                  <MessageInput chat={activeChat} user={activeChat.users.filter(u => u._id !== state.auth.user._id).map(u => u)} successCallback={getChatMessages} />
+                  <MessageInput chat={activeChat} user={activeChat.users.filter(u => u._id !== state.auth.user._id).map(u => u)} successCallback={loadMessages} />
                 </div>
               }
             </div>
