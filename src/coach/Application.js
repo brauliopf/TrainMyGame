@@ -9,6 +9,7 @@ import { positions } from '../util/input';
 import LocationInput from '../user/LocationInput.js';
 import ExperiencesInput from './ExperiencesInput';
 import { s3Config } from '../util/s3';
+import classnames from 'classnames'
 
 AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
@@ -33,6 +34,7 @@ export default function Application() {
   const getLocation = () => location;
   const [experiences, setExperiences] = useState([]);
   const getExperiences = () => experiences;
+  const [errors, setErrors] = useState({ inputs: [], message: "" })
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => {
@@ -62,24 +64,37 @@ export default function Application() {
     setLocation(user.location);
   }, [user])
 
-  // ** Form input
-  const formInput = (name, type, label, required) => {
+  const formInput = (name, type, label, required, pattern, invalidFeedback) => {
     return (
       <div className="input-group mb-2">
         <div className="input-group-prepend">
-          <label className="input-group-text" id={name}>{label}</label>
+          <label className="input-group-text" htmlFor={name}>{label}{required ? "*" : ""}</label>
         </div>
         <input
           label={label}
           type={type}
           name={name}
-          className='form-control'
-          value={(data && data[name]) || ""}
-          onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
+          className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes(name) })}
+          value={data[name]}
+          pattern={pattern || undefined}
           required={required || false}
+          onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
         />
-      </div>)
+      </div>
+    )
   }
+
+  const handleSubmitError = err => {
+    // err = {data: {…}, status: ###, statusText: "XXX", headers: {…}, config: {…}, …}
+    if (isEmpty(user)) {
+      console.log(err.response.data, errors)
+      if (err.response.data.error === "INVALID_CREDENTIALS") {
+        setErrors({ inputs: ["email"] })
+        window.scrollTo(0, 0)
+      }
+    }
+  }
+
   const genderInput = () => {
     return (
       <div className="input-group mb-2">
@@ -149,6 +164,10 @@ export default function Application() {
         if (data.picture === "" || data.picture.search("/temporary/") > 0) await axios.put(`/api/v1/users/${res.data.user._id}`, { picture: url });
         history.push('/');
       })
+      .catch(err => {
+        console.log("HERERERE", err.response)
+        if (err.response.data.error === "INVALID_CREDENTIALS") { handleSubmitError(err) }
+      })
   }
 
   console.log(data)
@@ -176,12 +195,15 @@ export default function Application() {
                         label="Email"
                         type="text"
                         name="email"
-                        className='form-control'
+                        className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes("email") })}
                         value={data["email"]}
                         onChange={e => { if (isEmpty(user)) return setData({ ...data, [e.target.name]: e.target.value }); }}
                         required={true}
                         disabled={state.auth && state.auth.isAuthenticated}
                       />
+                      <div class="invalid-feedback">
+                        <b>Let's try again. </b>This email is already taken. Is that you? Please provide the correct password or sign-in.
+                      </div>
                     </div>
                   </div>
                   {isEmpty(user) &&

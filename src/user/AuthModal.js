@@ -5,6 +5,7 @@ import axios from 'axios'
 import Select from 'react-select';
 import { positions } from '../util/input';
 import { s3Config } from '../util/s3';
+import classnames from 'classnames'
 
 export default function AuthModal() {
 
@@ -14,6 +15,7 @@ export default function AuthModal() {
   }
   const { dispatch } = useContext(Context);
   const [data, setData] = useState(initialState);
+  const [errors, setErrors] = useState({ inputs: [], message: "" })
   const options = positions.map(p => ({ value: p, label: p, key: p }));
 
   // Auxiliary
@@ -33,6 +35,44 @@ export default function AuthModal() {
           dispatch({ type: 'MODAL_OFF', component: "authModal" });
         }
       })
+      .catch(err => { handleSubmitError(err); })
+  }
+
+  const handleSubmitError = err => {
+    // err = {data: {…}, status: ###, statusText: "XXX", headers: {…}, config: {…}, …}
+    if (data.formRegister) {
+      if (err.response.data.error === "DUPLICATED_EMAIL") {
+        return setErrors({ inputs: errors.inputs.concat(["email"]), message: "" })
+      }
+      else {
+        if (err.response.data.error === "USER_NOT_FOUND") {
+          setErrors({ inputs: errors.inputs, message: "There isn't an account associated with this email address. Please try another email." })
+        }
+        else if (err.response.data.error === "INVALID_CREDENTIALS") {
+          setErrors({ inputs: errors.inputs, message: "We don't recognize this email/password combination, please correct it and try again." })
+        }
+      }
+    }
+  }
+
+  const formInput = (name, type, label, required, pattern, invalidFeedback) => {
+    return (<div>
+      <label htmlFor={name}>{label}{required ? "*" : ""}</label>
+      <input
+        label={label}
+        type={type}
+        name={name}
+        className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes(name) })}
+        value={data[name]}
+        pattern={pattern || undefined}
+        required={required}
+        onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
+      />
+      <div class="invalid-feedback">
+        <b>Let's try again. </b>{invalidFeedback ? invalidFeedback : "The value provided is not valid, please correct it."}
+      </div>
+    </div>
+    )
   }
 
   const getRandomavatar = () => `${s3Config.bucketURL}/avatar/default/${`0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
@@ -49,54 +89,22 @@ export default function AuthModal() {
               <h4 className="title">{data.formRegister ? "Register" : "Sign In"}</h4>
               <form className="mt-4" onSubmit={e => { e.preventDefault(); authenticate(data); }}>
                 {data.formRegister &&
-                  <div className="">
-                    <label htmlFor="name">Name*</label>
-                    <input
-                      label="Name"
-                      type="name"
-                      name="name"
-                      className='form-control'
-                      value={data.name}
-                      onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
-                    />
+                  <div className=""> {/* INPUT: name */}
+                    {formInput("name", "text", "Name", true, "", "Name must be provided")}
                   </div>}
-                <div className="mt-2">
-                  <label htmlFor="email">Email*</label>
-                  <input
-                    type="email"
-                    name="email"
-                    className='form-control'
-                    value={data.email}
-                    onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
-                    required
-                  />
+                <div className="mt-2"> {/* INPUT: email */}
+                  {formInput("email", "email", "Email", true, "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", "This email is already taken. Is that you? Please sign-in.")}
                 </div>
-                <div className="mt-2">
-                  <label htmlFor="password">Password*</label>
-                  <input
-                    type="password"
-                    name="password"
-                    className='form-control'
-                    value={data.password}
-                    onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
-                    required
-                  />
+                <div className="mt-2"> {/* INPUT: password */}
+                  {formInput("password", "password", "Password", true, ".{4,}", "Four or more characters")}
                 </div>
 
                 {data.formRegister &&
-                  <div className="row mt-2 d-flex justify-content-between">
-                    <div className="col-6">
-                      <label htmlFor="experience">Experience*</label>
-                      <input
-                        type="number"
-                        name="experience"
-                        className='form-control'
-                        value={data.experience}
-                        onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
-                        required
-                      />
+                  <div className="row mt-2 d-flex form-row justify-content-between">
+                    <div className="col-6"> {/* INPUT: player experience */}
+                      {formInput("experience", "number", "Player Experience", false)}
                     </div>
-                    <div className="col-6">
+                    <div className="col-6"> {/* INPUT: gender */}
                       <label htmlFor="gender">Gender*</label>
                       <select
                         className="browser-default custom-select"
@@ -110,7 +118,7 @@ export default function AuthModal() {
                         <option value="female">Female</option>
                       </select>
                     </div>
-                    <div className="col-12 my-2">
+                    <div className="col-12 my-2"> {/* INPUT: position */}
                       <label htmlFor="position">Position</label>
                       <Select
                         value={data.position}
@@ -119,21 +127,16 @@ export default function AuthModal() {
                         isMulti={true}
                       />
                     </div>
-                    <div className="col-12 my-2">
-                      <label htmlFor="dob">Date of Birth</label>
-                      <input
-                        type="date"
-                        name="dob"
-                        className='form-control'
-                        value={data.dob}
-                        onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
-                        required
-                      />
+                    <div className="col-12 my-2"> {/* INPUT: dob */}
+                      {formInput("dob", "date", "Date of Birth", true)}
                     </div>
                   </div>
                 }
 
-                <div className="pt-3 text-center">
+                {errors && errors.message && <div className="text-center mt-3 py-2 border border-danger bg-light text-danger">
+                  {errors.message}
+                </div>}
+                <div className="mt-2 text-center">
                   {data.formRegister ?
                     <input type="submit" value="Create account" className="btn btn-primary" />
                     :

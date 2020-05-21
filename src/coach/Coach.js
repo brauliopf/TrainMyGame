@@ -61,7 +61,7 @@ export default function Coach() {
           </div>
           {coach.athlete && coach.athlete.video &&
             <div className="embed-responsive embed-responsive-16by9 my-2">
-              <iframe width="560" height="315" src={coach.athlete.video} title={`${coach.name} - Video`} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+              <iframe width="560" height="315" src={coach.athlete.video.replace("youtu.be/", "www.youtube.com/embed/")} title={`${coach.name} - Video`} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
             </div>
           }
         </div>

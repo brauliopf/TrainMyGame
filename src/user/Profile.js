@@ -177,7 +177,7 @@ export default function Profile() {
     const coach = others[session.coach]
 
     return (
-      <div className="col-12" key={session._id}>
+      <div className="col-12 mb-2" key={session._id}>
         {(session && others && session.agenda) &&
           <div className="row border bg-light">
 
@@ -247,7 +247,7 @@ export default function Profile() {
               <p className="h6 text-left">Media</p>
               {user.athlete && user.athlete.video &&
                 <div className="embed-responsive embed-responsive-16by9 my-2">
-                  <iframe width="560" height="315" src={user.athlete.video} title={`${user.name} - Video`} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                  <iframe width="560" height="315" src={user.athlete.video.replace("youtu.be/", "www.youtube.com/embed/")} title={`${user.name} - Video`} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
                 </div>
               }
               <div className="input-group mb-2">
@@ -260,6 +260,7 @@ export default function Profile() {
                   name="video"
                   className='form-control'
                   value={(data && data.video) || ""}
+                  pattern="https://youtu.be/.+" title="Must be a youtube video with a https://youtu.be/ URL"
                   onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
                 />
               </div>
@@ -289,7 +290,20 @@ export default function Profile() {
                 {formInput("name", "name", "Name")}
               </div>
               <div className="col-12 col-lg-5 pl-lg-0">
-                {formInput("phone", "tel", "Contact")}
+                <div className="input-group mb-2">
+                  <div className="input-group-prepend">
+                    <label className="input-group-text" id="tel">Contact</label>
+                  </div>
+                  <input
+                    label="Contact"
+                    type="tel"
+                    name="phone"
+                    placeholder="555-555-5555"
+                    className='form-control'
+                    onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
+                    value={data["phone"] || ""}
+                  />
+                </div>
               </div>
             </div>
             {/* data = { complement, street, city, state, zipcode } */}
@@ -347,7 +361,7 @@ export default function Profile() {
       </div>
 
       <div className="row my-4">
-        <div className="col-12 d-flex justify-content-between">
+        <div className="col-12 d-flex justify-content-between my-2">
           <h4>Upcoming sessions</h4>
           {user.athlete && user.athlete.type === "coach" &&
             <Link to="/sessions/new" className="btn btn-primary my-2 my-md-0">Create a session</Link>

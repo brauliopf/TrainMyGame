@@ -75,8 +75,13 @@ export default function SearchFilter(props) {
             <div className="my-2">
               <p><strong>Text (name, city)</strong></p>
               <input
-                type="text" name="textSearch" className="form-control"
-                placeholder="Search" aria-label="Search" value={text || ""}
+                type="text"
+                name="textSearch"
+                className="form-control"
+                placeholder="Search"
+                aria-label="Search"
+                value={text || ""}
+                pattern="[^'\x22]+"
                 onChange={e => setText(e.target.value === "" ? [] : [e.target.value])}
               />
             </div>
