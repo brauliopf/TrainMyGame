@@ -19,7 +19,8 @@ const Checkout = () => {
   const [phone, setPhone] = useState("");
   const [order, setOrder] = useState("");
   const [session, setSession] = useState({});
-  const [coach, setCoach] = useState({});
+  const [coaches, setCoaches] = useState([]);
+  const [participants, setParticipants] = useState([]);
 
   // Control vars & UI elements
   const [error, setError] = useState(null);
@@ -27,38 +28,58 @@ const Checkout = () => {
   const [processing, setProcessing] = useState('');
 
   // Effect
-
-
   useEffect(() => {
-    if (state.auth.isAuthenticated) {
-      !order && createPaymentIntent(id);
-    } else {
-      history.push("/")
-    }
+    if (!state.auth.isAuthenticated); //history.push("/")
+    !order && createPaymentIntent(id);
+    isEmpty(session) && loadSession(id);
   }, [state, id, order])
 
+  useEffect(() => {
+    if (isEmpty(session)) return;
+    if (isEmpty(coaches)); // set the coach
+    if (isEmpty(session.participants) && isEmpty(participants)); // set the participant
+  }, [session, coaches, participants])
+
   // Auxiliary
+  const isEmpty = obj => {
+    return obj.length === 0 || Object.entries(obj).length === 0
+  }
   const createPaymentIntent = async (id) => {
     axios.post(`/api/v1/sessions/${id}/orders`)
       .then(res => { setClientSecret(res.data.client_secret); setOrder(res.data.order_id); })
-    axios.get(`/api/v1/sessions/${id}`)
-      .then(res => { setSession(res.data.session); setCoach(res.data.session.coach) })
   }
-
+  const loadSession = async (id) => {
+    await axios.get(`/api/v1/sessions/${id}`)
+      .then(res => { setSession(res.data.session); return res.data.session })
+      .then(session => {
+        const otherUsers = session.participants && session.participants.concat(session.coach).flat() || [session.coach]
+        axios.post(`api/v1/users/public-profiles`, { users: otherUsers })
+          .then(res => setOtherUsers(res.data, session))
+      })
+  }
+  const setOtherUsers = (otherUsers, session) => {
+    const objCoaches = {}
+    const objParticipants = {}
+    for (let user of Object.entries(otherUsers)) {
+      if (session.coach === user[0]) objCoaches[user[0]] = user[1]
+      else objParticipants[user[0]] = user[1];
+    }
+    setCoaches(objCoaches);
+    setParticipants(objParticipants);
+  }
   const getSessionAddress = (location) => {
     if (!location) return;
     return `${location.complement} ${location.street}. ${location.zipcode}. ${location.city}, ${location.state}.`
   }
-
   const getCheckoutSummary = () => {
     return (
       <div className="col-12" id="checkout-summary">
-        {(session && coach && session.agenda) &&
+        {(!isEmpty(session) && !isEmpty(coaches) && !isEmpty(session.agenda)) &&
           <div className="row m-2 border" id="purchase-summary">
             <div className="col-12 col-lg-2 d-flex flex-column justify-content-center align-items-center text-center mt-2" id="coach-info">
-              <img src={coach.picture} alt={coach.name} className="img-thumbnail rounded-circle" style={{ maxHeight: "100px", maxWidth: "100px" }} />
+              <img src={coaches[session.coach].picture} alt={coaches[session.coach].name} className="img-thumbnail rounded-circle" style={{ maxHeight: "100px", maxWidth: "100px" }} />
               <div className="font-weight-bold">
-                <span>{coach.name}</span>
+                <span>{coaches[session.coach].name}</span>
               </div>
             </div>
             <div className="col-12 col-lg-5 d-flex flex-column justify-content-center mt-4 my-md-2">
@@ -77,9 +98,9 @@ const Checkout = () => {
               }
             </div>
             <div className="col-12 col-lg-2 d-flex flex-row flex-lg-column justify-content-center my-4">
-              {session.participants.length > 0 &&
+              {participants.length > 0 &&
                 <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
-                  {session.participants.map((p, index) => (index < 3 &&
+                  {participants.map((p, index) => (index < 3 &&
                     <div className="d-flex" key={p._id}>
                       <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} src={p.picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                     </div>)
@@ -98,7 +119,6 @@ const Checkout = () => {
       </div>
     )
   }
-
   const handleSubmit = async ev => {
     ev.preventDefault();
     setProcessing(true);

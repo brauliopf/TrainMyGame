@@ -122,8 +122,14 @@ export default function SearchFilter(props) {
 
             <div id="timeframe">
               <p className="font-weight-bold">Session Date</p>
-              <label>From: <input type="date" name="dateFrom" value={dateFrom} onChange={e => { if (e.target.value !== "") setDateFrom([e.target.value]) }} /></label>
-              <label>To: <input type="date" name="dateTo" value={dateTo} onChange={e => { if (e.target.value !== "") setDateTo([e.target.value]) }} /></label>
+              <div className="form-row">
+                <div className="col-12 col-md-6">
+                  <label className="mr-1">From: </label><input type="date" name="dateFrom" value={dateFrom} onChange={e => { if (e.target.value !== "") setDateFrom([e.target.value]) }} />
+                </div>
+                <div className="col-12 col-md-6">
+                  <label className="mr-1">To: </label><input type="date" name="dateTo" value={dateTo} onChange={e => { if (e.target.value !== "") setDateTo([e.target.value]) }} />
+                </div>
+              </div>
             </div>
           </div>
           <div className="modal-footer">

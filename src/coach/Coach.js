@@ -9,17 +9,25 @@ export default function Coach() {
 
   const [coach, setCoach] = useState({});
   const [sessions, setSessions] = useState({});
+  const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const { id } = useParams();
 
   // Effects
-  useEffect(() => { loadCoach(id); loadsessions(id) }, [id]);
-  useEffect(() => { }, [coach])
+  useEffect(() => { loadCoach(id); loadsessions(id); }, [id]);
+  useEffect(() => {
+    if (isEmpty(sessions)) return;
+    const otherUsers = sessions.map(s => s.participants.concat(s.coach)).flat();
+    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
+      .then(res => setPublicProfiles(res.data));
+  }, [sessions])
 
   // Auxiliary
+  const isEmpty = (obj = {}) => {
+    return obj.length === 0 || Object.entries(obj).length === 0
+  }
   const loadCoach = async id => {
     axios.get(`/api/v1/coaches/${id}`).then(res => setCoach(res.data.coach))
   }
-
   const loadsessions = coachId => {
     axios.get(`/api/v1/coaches/${coachId}/sessions`).then(res => setSessions(res.data.data))
   }
@@ -71,7 +79,7 @@ export default function Coach() {
         <div className="mt-4" id="sessions-info">
           <h4>Upcoming sessions</h4>
           {sessions.length > 0 && sessions.map(session => (
-            <SessionDetails session={session} coach={coach} key={session._id} />
+            <SessionDetails session={session} coach={publicProfiles[coach._id]} key={session._id} users={publicProfiles} />
           ))}
         </div>}
     </div>

@@ -20,8 +20,8 @@ export default function Profile() {
   const { state, } = useContext(Context);
   const user = state.auth.user || ""
   const [data, setData] = useState({});
-  const [sessions, setSessions] = useState([]);
-  const [others, setOthers] = useState({}); // { user_id: { name, picture} }
+  const [sessions, setSessions] = useState([]); // [ {session} ]
+  const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [location, setLocation] = useState({});
   const getLocation = () => location;
 
@@ -32,25 +32,26 @@ export default function Profile() {
 
   // Effects
   useEffect(() => {
-    if (!state.auth.user); //history.push("/")
-    else {
-      loadSessions(user)
+    if (isEmpty(user)) return history.push("/")
 
-      // set control vars for form input
-      const { name, phone, picture } = state.auth.user
-      const { position, college, team, gender, dob, video, bio } = state.auth.user.athlete || {}
-      const { men: xp_men, women: xp_women } = (state.auth.user.athlete && state.auth.user.athlete.experienceTime) || {}
-      const { complement, street, city, state: stt, zipcode, geo } = state.auth.user.location || {}
-      setLocation({ complement, street, city, state: stt, zipcode, geo });
-      setData({ location, name, phone, position, gender, dob: dob ? dob.split("T")[0] : undefined, video, college, team, xp_men, xp_women, picture, bio });
-    }
+    // load user profile data
+    loadSessions(user);
+    const { name, phone, picture } = user
+    const { position, college, team, gender, dob, video, bio } = user.athlete || {}
+    const { men: xp_men, women: xp_women } = (user.athlete && user.athlete.experienceTime) || {}
+    const { complement, street, city, state: stt, zipcode, geo } = user.location || {}
+
+    // render forms UI
+    setLocation({ complement, street, city, state: stt, zipcode, geo });
+    setData({ location, name, phone, position, gender, dob: dob ? dob.split("T")[0] : undefined, video, college, team, xp_men, xp_women, picture, bio });
   }, [user, history])
 
-  // Get profile info from other users (picture and id)
+  // get profile info from participants and coaches of purchased sessions
   useEffect(() => {
-    if (!sessions || isEmpty(sessions)) return;
-    const others = sessions.map(s => s.participants.concat(s.coach)).flat()
-    axios.post(`api/v1/users/public-profiles`, { users: others }).then(res => setOthers(res.data))
+    if (isEmpty(sessions)) return;
+    const otherUsers = sessions.map(s => s.participants.concat(s.coach)).flat();
+    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
+      .then(res => setPublicProfiles(res.data));
   }, [sessions])
 
   useEffect(() => {
@@ -119,6 +120,7 @@ export default function Profile() {
 
   // ** HTTP requests
   const loadSessions = async user => {
+    if (isEmpty(user)) return;
     if (user.athlete && user.athlete.type === "coach") {
       axios.get(`/api/v1/coaches/${user._id}/sessions`).then(res => { setSessions(res.data.data) })
     }
@@ -126,8 +128,8 @@ export default function Profile() {
       axios.get(`/api/v1/orders`).then(res => { setSessions(res.data.map(o => o.session)) })
     }
   }
-  const isEmpty = obj => {
-    return Object.keys(obj).length === 0
+  const isEmpty = (obj = {}) => {
+    return obj.length === 0 || Object.entries(obj).length === 0
   }
   const uploadFile = (file) => { // upload file to s3
     const uploadParams = {
@@ -160,18 +162,20 @@ export default function Profile() {
   const getUpcomingSessions = (user, sessions) => {
     if (user.athlete && user.athlete.type === "coach") {
       return (
-        isEmpty(sessions) && others ?
+        isEmpty(sessions) ?
           <div className="w-100 border text-secondary text-center  p-4">
             You don't have upcoming sessions. <Link to="/session/new">Create a session</Link> now at a location close to you.
           </div> :
-          !isEmpty(others) && sessions.map(s => getSessionSummary(s, others)))
+          !isEmpty(publicProfiles) && sessions.map(s => getSessionSummary(s, publicProfiles)))
     }
-    else return (
-      isEmpty(sessions) && others ?
-        <div className="w-100 border text-secondary text-center p-4">You don't have upcoming sessions. Come <Link to="/coaches">find a coach</Link> with us.</div> :
-        <div className="" id="upcoming_sessions">
-          {!isEmpty(others) && sessions.map(s => getSessionSummary(s, others))}
-        </div>)
+    else {
+      return (
+        isEmpty(sessions) ?
+          <div className="w-100 border text-secondary text-center p-4">You don't have upcoming sessions. Come <Link to="/coaches">find a coach</Link> with us.</div> :
+          <div className="" id="upcoming_sessions">
+            {!isEmpty(publicProfiles) && sessions.map(s => getSessionSummary(s, publicProfiles))}
+          </div>)
+    }
   }
   const getSessionSummary = (session, others) => {
     const coach = others[session.coach]
@@ -206,7 +210,7 @@ export default function Profile() {
                 {session.participants.length > 0 && session.participants.map((p, index) => {
                   return (
                     index < 3 && <div className="d-flex" key={p}>
-                      <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} id={others[p._id]} src={others[p._id].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
+                      <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} id={others[p]} src={others[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                     </div>)
                 }
                 )}
@@ -226,7 +230,6 @@ export default function Profile() {
     )
   }
 
-  // console.log("profile", data)
   return (
     <div id="profile">
       <h3>Profile</h3>
@@ -306,7 +309,7 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-            {/* data = { complement, street, city, state, zipcode } */}
+
             <LocationInput location={getLocation} setLocation={setLocation} />
             <div className="row">
               <div className="col-12 col-lg-7">

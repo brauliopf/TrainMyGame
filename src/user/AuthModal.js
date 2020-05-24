@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Context } from '../Contexts'
 import { Link } from 'react-router-dom';
 import axios from 'axios'
@@ -9,12 +9,8 @@ import classnames from 'classnames'
 
 export default function AuthModal() {
 
-  const initialState = {
-    name: '', email: '', password: '', gender: '', picture: '',
-    position: '', experience: '', dob: '', formRegister: true
-  }
   const { dispatch } = useContext(Context);
-  const [data, setData] = useState(initialState);
+  const [data, setData] = useState({ formRegister: true });
   const [errors, setErrors] = useState({ inputs: [], message: "" })
   const options = positions.map(p => ({ value: p, label: p, key: p }));
 
@@ -23,38 +19,36 @@ export default function AuthModal() {
     // Set register payload
     if (user.formRegister) {
       const reducer = (accumulator, currentValue) => accumulator.concat(currentValue['value']);
-      user = { ...user, picture: getRandomavatar(), position: user.position.reduce(reducer, []) }
+      user = { ...user, picture: getRandomAvatar(), position: user.position.reduce(reducer, []) }
     }
 
     // Execute register or login
     axios.post(data.formRegister ? "/api/v1/users" : "/api/v1/users/login", user)
-      .then(user => {
-        if (user && user.data && !user.error) {
-          dispatch({ type: data.formRegister ? 'REGISTER' : 'LOGIN', data: user.data });
-          setData(initialState);
+      .then(res => {
+        if (res && res.data && !res.error) {
+          dispatch({ type: data.formRegister ? 'REGISTER' : 'LOGIN', data: res.data });
+          setData({});
           dispatch({ type: 'MODAL_OFF', component: "authModal" });
         }
       })
       .catch(err => { handleSubmitError(err); })
   }
-
   const handleSubmitError = err => {
     // err = {data: {…}, status: ###, statusText: "XXX", headers: {…}, config: {…}, …}
     if (data.formRegister) {
       if (err.response.data.error === "DUPLICATED_EMAIL") {
         return setErrors({ inputs: errors.inputs.concat(["email"]), message: "" })
       }
-      else {
-        if (err.response.data.error === "USER_NOT_FOUND") {
-          setErrors({ inputs: errors.inputs, message: "There isn't an account associated with this email address. Please try another email." })
-        }
-        else if (err.response.data.error === "INVALID_CREDENTIALS") {
-          setErrors({ inputs: errors.inputs, message: "We don't recognize this email/password combination, please correct it and try again." })
-        }
+    }
+    else {
+      if (err.response.data.error === "USER_NOT_FOUND") {
+        setErrors({ inputs: errors.inputs, message: "We could not find an account associated with this email address. Please try again." })
+      }
+      else if (err.response.data.error === "INVALID_CREDENTIALS") {
+        setErrors({ inputs: errors.inputs, message: "We don't recognize this email/password combination, please correct it and try again." })
       }
     }
   }
-
   const formInput = (name, type, label, required, pattern, invalidFeedback) => {
     return (<div>
       <label htmlFor={name}>{label}{required ? "*" : ""}</label>
@@ -63,19 +57,19 @@ export default function AuthModal() {
         type={type}
         name={name}
         className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes(name) })}
-        value={data[name]}
+        value={data[name] || ""}
         pattern={pattern || undefined}
         required={required}
         onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
       />
-      <div class="invalid-feedback">
-        <b>Let's try again. </b>{invalidFeedback ? invalidFeedback : "The value provided is not valid, please correct it."}
+      <div className="invalid-feedback">
+        <b>Let's try again. </b>{invalidFeedback ? invalidFeedback : "The value provided is not valid."}
       </div>
     </div>
     )
   }
 
-  const getRandomavatar = () => `${s3Config.bucketURL}/avatar/default/${`0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
+  const getRandomAvatar = () => `${s3Config.bucketURL}/avatar/default/${`0${Math.floor(Math.random() * Math.floor(4)) + 1}.png`}`;
 
   return (
     <div className="modal fade" id="authModal" tabIndex="-1" role="dialog">

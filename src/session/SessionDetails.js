@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Context } from '../Contexts';
 import { Link, useHistory } from 'react-router-dom';
-import CoachCardId from '../coach/CoachCardId'
+import CoachCardId from '../coach/CoachCardId';
 
 const getSessionAddress = (location) => {
   if (!location) return;
@@ -60,12 +60,12 @@ export default function SessionDetails({ session, coach, users }) {
             <div className="col-12 col-md-2 d-flex flex-row flex-md-column justify-content-between align-items-center mt-4 my-md-2">
               {session.participants && <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
                 {session.participants.map((p, index) => (
-                  index < 3 && <div className="d-flex" key={p._id}>
-                    <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} src={p.picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
+                  index < 3 && <div className="d-flex" key={index}>
+                    <img className="rounded-circle img-thumbnail position-absolute" alt={users[p].name} src={users[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                   </div>)
                 )}
               </div>}
-              {(session.participants && session.participants.map(p => p._id).includes(state.auth.isAuthenticated && state.auth.user._id)) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
+              {(session.participants && session.participants.map(p => users[p]._id).includes(state.auth.isAuthenticated && state.auth.user._id)) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
                 <div>
                   <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin(session._id)}>
                     <i className="fas fa-play" /> Join
