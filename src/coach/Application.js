@@ -170,7 +170,6 @@ export default function Application() {
       })
   }
 
-  console.log(data)
   return (
     <div id="profile">
       <h3>Apply for a Coaching Position</h3>
