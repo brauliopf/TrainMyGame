@@ -9,6 +9,7 @@ import { useHistory } from 'react-router-dom';
 const Checkout = () => {
 
   const { state, dispatch } = useContext(Context);
+  const user = (state.auth.isAuthenticated && state.auth.user) || {}
   const [clientSecret, setClientSecret] = useState(null);
   const stripe = useStripe();
   const elements = useElements();
@@ -19,8 +20,7 @@ const Checkout = () => {
   const [phone, setPhone] = useState("");
   const [order, setOrder] = useState("");
   const [session, setSession] = useState({});
-  const [coaches, setCoaches] = useState([]);
-  const [participants, setParticipants] = useState([]);
+  const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
 
   // Control vars & UI elements
   const [error, setError] = useState(null);
@@ -32,13 +32,14 @@ const Checkout = () => {
     if (!state.auth.isAuthenticated); //history.push("/")
     !order && createPaymentIntent(id);
     isEmpty(session) && loadSession(id);
-  }, [state, id, order])
+  }, [id, order])
 
   useEffect(() => {
     if (isEmpty(session)) return;
-    if (isEmpty(coaches)); // set the coach
-    if (isEmpty(session.participants) && isEmpty(participants)); // set the participant
-  }, [session, coaches, participants])
+    const otherUsers = session.participants.concat(session.coach);
+    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
+      .then(res => setPublicProfiles(res.data));
+  }, [session])
 
   // Auxiliary
   const isEmpty = obj => {
@@ -49,23 +50,7 @@ const Checkout = () => {
       .then(res => { setClientSecret(res.data.client_secret); setOrder(res.data.order_id); })
   }
   const loadSession = async (id) => {
-    await axios.get(`/api/v1/sessions/${id}`)
-      .then(res => { setSession(res.data.session); return res.data.session })
-      .then(session => {
-        const otherUsers = session.participants && session.participants.concat(session.coach).flat() || [session.coach]
-        axios.post(`api/v1/users/public-profiles`, { users: otherUsers })
-          .then(res => setOtherUsers(res.data, session))
-      })
-  }
-  const setOtherUsers = (otherUsers, session) => {
-    const objCoaches = {}
-    const objParticipants = {}
-    for (let user of Object.entries(otherUsers)) {
-      if (session.coach === user[0]) objCoaches[user[0]] = user[1]
-      else objParticipants[user[0]] = user[1];
-    }
-    setCoaches(objCoaches);
-    setParticipants(objParticipants);
+    axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session));
   }
   const getSessionAddress = (location) => {
     if (!location) return;
@@ -74,12 +59,12 @@ const Checkout = () => {
   const getCheckoutSummary = () => {
     return (
       <div className="col-12" id="checkout-summary">
-        {(!isEmpty(session) && !isEmpty(coaches) && !isEmpty(session.agenda)) &&
+        {(!isEmpty(session) && !isEmpty(publicProfiles) && !isEmpty(session.agenda)) &&
           <div className="row m-2 border" id="purchase-summary">
             <div className="col-12 col-lg-2 d-flex flex-column justify-content-center align-items-center text-center mt-2" id="coach-info">
-              <img src={coaches[session.coach].picture} alt={coaches[session.coach].name} className="img-thumbnail rounded-circle" style={{ maxHeight: "100px", maxWidth: "100px" }} />
+              <img src={publicProfiles[session.coach].picture} alt={publicProfiles[session.coach].name} className="img-thumbnail rounded-circle" style={{ maxHeight: "100px", maxWidth: "100px" }} />
               <div className="font-weight-bold">
-                <span>{coaches[session.coach].name}</span>
+                <span>{publicProfiles[session.coach].name}</span>
               </div>
             </div>
             <div className="col-12 col-lg-5 d-flex flex-column justify-content-center mt-4 my-md-2">
@@ -98,11 +83,11 @@ const Checkout = () => {
               }
             </div>
             <div className="col-12 col-lg-2 d-flex flex-row flex-lg-column justify-content-center my-4">
-              {participants.length > 0 &&
+              {session.participants.length > 0 &&
                 <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
-                  {participants.map((p, index) => (index < 3 &&
-                    <div className="d-flex" key={p._id}>
-                      <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} src={p.picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
+                  {session.participants.map((p, index) => (index < 3 &&
+                    <div className="d-flex" key={p}>
+                      <img className="rounded-circle img-thumbnail position-absolute" alt={publicProfiles[p].name} src={publicProfiles[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                     </div>)
                   )}
                 </div>}
@@ -136,12 +121,11 @@ const Checkout = () => {
     if (payload.error) {
       setError(`Payment failed. ${payload.error.message}`);
       setProcessing(false);
-    } else {
-      console.log("submit:approved", order, payload)
+    } else if ((payload.paymentIntent && payload.paymentIntent.status === 'succeeded')) {
       setError(null);
       setProcessing(false);
       setSucceeded(true);
-      dispatch({ type: "PAYMENT_APPROVED", data: { order, session: session._id, user: state.auth.user._id, paymentIntent: payload.paymentIntent.id } });
+      dispatch({ type: "PAYMENT_AUTHORIZED", data: { order, session: session._id, user: state.auth.user._id, paymentIntent: payload.paymentIntent.id } });
       setTimeout(function () { history.push(`/sessions/${session._id}`) }, 3000);
     }
 

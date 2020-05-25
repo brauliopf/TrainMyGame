@@ -11,7 +11,7 @@ export const MODAL_ON = "MODAL_ON"
 export const MODAL_OFF = "MODAL_OFF"
 
 // Payment
-export const PAYMENT_APPROVED = "PAYMENT_APPROVED"
+export const PAYMENT_AUTHORIZED = "PAYMENT_AUTHORIZED"
 export const PAYMENT_REJECTED = "PAYMENT_REJECTED"
 
 // Alert

@@ -1,4 +1,4 @@
-import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_APPROVED, ADD_ALERT } from './Actions'
+import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_AUTHORIZED, ADD_ALERT } from './Actions'
 import $ from 'jquery'
 import authReducer from './AuthReducer'
 import axios from 'axios';
@@ -26,7 +26,7 @@ function layoutReducer(state, action) {
 }
 function paymentReducer(state, action) {
   switch (action.type) {
-    case PAYMENT_APPROVED:
+    case PAYMENT_AUTHORIZED:
       axios.put(`/api/v1/orders/${action.data.order}`, { status: "authorized" })
       axios.put(`/api/v1/sessions/${action.data.session}`, { new_participant: action.data.user })
       return state;

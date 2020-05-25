@@ -21,8 +21,7 @@ export default function Search() {
       let querySessions = res.data.sessions;
       if (!filters.distanceRange || filters.distanceRange.length === 0) setSessions(querySessions)
       else {
-        populateSessionDistance(querySessions).then((populated) => {
-          console.log("querySessions", populated)
+        applyDistanceFilter(querySessions).then((populated) => {
           setSessions(populated)
         })
       }
@@ -30,24 +29,32 @@ export default function Search() {
   }, [filters]);
 
   // Auxiliar
-  const populateSessionDistance = async querySessions => {
+  const applyDistanceFilter = async querySessions => {
     if (!user || (user.location && !user.location.geo)) return querySessions;
+    let distanceFilteredSessions = querySessions
 
-    let populatedSessions = querySessions
-    const reducer = (allSessions, coachSessions) => { // coachSessions = { coach_id: [{session}] }
-      if (!allSessions[`${coachSessions[0]}`]) allSessions[`${coachSessions[0]}`] = [];
-      const populatedCoachSessions = coachSessions[1].map(session => {
+    // 
+    // coachSessions = { coach_id: [{session}] }
+    const reducer = (allSessions, coachSessions) => {
+      // init object element with coach_id as key
+      if (!allSessions[coachSessions[0]]) allSessions[coachSessions[0]] = [];
+
+      // calculate distance to each session in the array and
+      // add to session array only if distance is within filtered range
+      // return array of session objects
+      const filteredCoachSessions = coachSessions[1].map(session => {
         session.distance = calculateDistance(session.location.geo);
         const withinRange = session.distance <= parseInt(filters.distanceRange[0]) * 1000
         return withinRange ? session : undefined;
       }).filter((obj) => obj); // required to clean array from null objects
-      allSessions[`${coachSessions[0]}`] = allSessions[`${coachSessions[0]}`].concat(populatedCoachSessions)
+
+      allSessions[coachSessions[0]] = allSessions[coachSessions[0]].concat(filteredCoachSessions)
       return allSessions;
     }
-    populatedSessions = await Object.entries(querySessions).reduce(reducer, {});
-    console.log("populateSessionDistance", filters, populatedSessions)
 
-    return populatedSessions;
+    distanceFilteredSessions = await Object.entries(querySessions).reduce(reducer, {});
+
+    return distanceFilteredSessions;
 
   }
 

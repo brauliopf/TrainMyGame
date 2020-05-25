@@ -11,7 +11,6 @@ const Session = () => {
   const { state, dispatch } = useContext(Context);
   const user = (state.auth.isAuthenticated && state.auth.user) || {}
   const [session, setSession] = useState({});
-  const [coach, setCoach] = useState({});
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [maxDiscountTier, setMaxDiscountTier] = useState({}) // { qty, price }
   const { id } = useParams();
@@ -32,7 +31,9 @@ const Session = () => {
   }, [session])
 
   // Auxiliary
-  const isEmpty = obj => Object.keys(obj).length === 0
+  const isEmpty = (obj = {}) => {
+    return obj.length === 0 || Object.entries(obj).length === 0
+  }
 
   const loadSession = async id => {
     axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session));
@@ -62,7 +63,7 @@ const Session = () => {
       <div className="row">
         <div className="col-12 d-flex justify-content-between">
           <p className="h3">{session.title}</p>
-          {((session.coach && session.coach._id === user._id) || (session.participants && session.participants.map(p => p._id).includes(state.auth.isAuthenticated && state.auth.user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
+          {((session.coach && session.coach._id === user._id) || (session.participants && session.participants.includes(user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
             <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin()}>
               <i className="fas fa-play" /> Join
             </Link>
@@ -78,7 +79,7 @@ const Session = () => {
                 <div className="col-12 col-md-6">
                   <ul className="list-group list-group-flush" id="session-info">
                     <li className="list-group-item">Location: {getSessionAddress(session.location)}</li>
-                    <li className="list-group-item">Base price: ${session.price}</li>
+                    <li className="list-group-item">Base price: ${session.price / 100}</li>
                     {session.discountTier &&
                       <li className="list-group-item">
                         Discounted price: up to ${maxDiscountTier.price / 100} if more than {maxDiscountTier.qty} players purchase.
@@ -128,7 +129,7 @@ const Session = () => {
             </div>
           </section>}
 
-        {session.participants &&
+        {!isEmpty(session.participants) &&
           <section className="border p-4 mt-2 w-100" id="participants-info">
 
             <div className="container">
@@ -140,8 +141,8 @@ const Session = () => {
                     <img className="rounded-circle img-thumbnail" alt={publicProfiles[p].name} src={publicProfiles[p].picture} style={{ maxWidth: "120px", maxHeight: "120px" }} />
                     <div className="row d-flex flex-column my-auto ml-2 h-100">
                       <div className="col">
-                        <span className="d-block">{p.name}</span>
-                        <span>{p.college || "College"}</span>
+                        <span className="d-block">{publicProfiles[p].name}</span>
+                        <span>{publicProfiles[p].college}</span>
                       </div>
                     </div>
                   </div>)
