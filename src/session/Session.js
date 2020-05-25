@@ -12,19 +12,23 @@ const Session = () => {
   const user = (state.auth.isAuthenticated && state.auth.user) || {}
   const [session, setSession] = useState({});
   const [coach, setCoach] = useState({});
+  const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [maxDiscountTier, setMaxDiscountTier] = useState({}) // { qty, price }
   const { id } = useParams();
   const history = useHistory();
 
   // Effect
   useEffect(() => {
-    if (session._id) return;
     loadSession(id);
-  }, [session, id])
+  }, [id])
 
   useEffect(() => {
-    if (session._id) setCoach(session.coach)
+    if (isEmpty(session)) return;
     if (session.discountTier) getMaxDiscountTier(session.discountTier)
+
+    const otherUsers = session.participants.concat(session.coach);
+    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
+      .then(res => setPublicProfiles(res.data));
   }, [session])
 
   // Auxiliary
@@ -106,18 +110,18 @@ const Session = () => {
 
           </section >}
 
-        {coach.athlete &&
+        {!isEmpty(publicProfiles) &&
           <section className="border p-4 mt-2 w-100" id="coach-info">
             <div className="container">
               <strong>Coach</strong><hr />
 
               <div className="row d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-lg-between">
-                <CoachCardId coach={coach} detail={{ ratings: true, instagram: true }} />
+                <CoachCardId coach={publicProfiles[session.coach]} detail={{ ratings: true, instagram: true }} />
 
                 <div className="col-12 col-md-8 mt-2">
                   <div className="bg-light p-3 border" id="bio-info">
                     <div className="h6">Bio info:</div>
-                    {coach.athlete.bio}
+                    {publicProfiles[session.coach].athlete.bio}
                   </div>
                 </div>
               </div>
@@ -131,9 +135,9 @@ const Session = () => {
               <strong>Participants</strong><hr />
 
               <div className="row" id="session-info">
-                {session.participants.map(p => (
-                  <div className="col-12 col-md-6 d-flex d-row mt-2" key={p._id}>
-                    <img className="rounded-circle img-thumbnail" alt={p.name} src={p.picture} style={{ maxWidth: "120px", maxHeight: "120px" }} />
+                {!isEmpty(publicProfiles) && session.participants.map(p => (
+                  <div className="col-12 col-md-6 d-flex d-row mt-2" key={p}>
+                    <img className="rounded-circle img-thumbnail" alt={publicProfiles[p].name} src={publicProfiles[p].picture} style={{ maxWidth: "120px", maxHeight: "120px" }} />
                     <div className="row d-flex flex-column my-auto ml-2 h-100">
                       <div className="col">
                         <span className="d-block">{p.name}</span>

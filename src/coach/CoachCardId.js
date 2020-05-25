@@ -24,7 +24,7 @@ export default function CoachCardId({ coach, detail }) {
             {detail && detail.instagram && (
               coach.connectedAccounts && coach.connectedAccounts.instagram ?
                 <div>
-                  <i className="fab fa-instagram mt-1" />@${coach.connectedAccounts.instagram.username}
+                  <i className="fab fa-instagram mt-1" /> @{coach.connectedAccounts.instagram.username}
                 </div> :
                 <div><i className="fab fa-instagram mt-1" /> @trainmygame</div>
             )}
