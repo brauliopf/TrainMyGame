@@ -8,10 +8,13 @@ const getSessionAddress = (location) => {
   return `${location.complement} ${location.street}, ${location.city}, ${location.state} ${location.zipcode}.`
 }
 
-export default function SessionDetails({ session, coach, users }) {
+export default function SessionDetails(props) {
 
   const { state, dispatch } = useContext(Context);
   const history = useHistory();
+  const { session, users } = props;
+  const coach = users[session.coach];
+
 
   const onClickJoin = (session_id) => {
     if (!state.auth.isAuthenticated) dispatch({ type: 'MODAL_ON', component: 'authModal' });
@@ -20,6 +23,7 @@ export default function SessionDetails({ session, coach, users }) {
     }
   }
 
+  console.log("SessionDetail", session, coach)
   return (
     <div key={session._id}>
       {(session && coach) &&

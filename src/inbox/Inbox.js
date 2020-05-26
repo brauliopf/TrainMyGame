@@ -62,7 +62,7 @@ const Inbox = () => {
       .catch(err => console.log(`Error loading chat messages: `, err))
   }
 
-  console.log("return", messages)
+  // console.log("return", messages)
   return (
     <div id="coach">
       <div className="row">

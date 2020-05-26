@@ -23,14 +23,24 @@ const Session = () => {
 
   useEffect(() => {
     if (isEmpty(session)) return;
-    if (session.discountTier) getMaxDiscountTier(session.discountTier)
-
-    const otherUsers = session.participants.concat(session.coach);
-    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
-      .then(res => setPublicProfiles(res.data));
+    getPublicProfiles();
   }, [session])
 
   // Auxiliary
+  const getPublicProfiles = async () => {
+    let otherUsers = [session.coach].concat(session.participants).flat()
+
+    // filter out repeated ids
+    let filteredUsers = []
+    filteredUsers = [...new Set(otherUsers)].filter((item, index) => item !== undefined);
+    if (filteredUsers === []) {
+      filteredUsers = otherUsers.filter((item, index) => (item !== undefined) && (otherUsers.indexOf(item) === index));
+    }
+
+    axios.get(`api/v1/users/public-profile?users=${filteredUsers.toString()}`).then(res => setPublicProfiles(res.data))
+    return;
+  }
+
   const isEmpty = (obj = {}) => {
     return obj.length === 0 || Object.entries(obj).length === 0
   }

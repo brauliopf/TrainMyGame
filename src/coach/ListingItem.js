@@ -32,7 +32,7 @@ const getSessionParams = session => {
   const time_str =
     ((time.hours > 12) ? `${time.hours - 12}` : `${time.hours}`)
       .concat(`:${time.minutes < 10 && "0"}${time.minutes}${(time.hours > 12) ? "pm" : "am"}`)
-  const slots = session.capacity ? session.capacity.max - session.participants.length : "#";
+  const slots = session.capacity ? session.capacity.max - (session.participants && session.participants.length || 0) : "#";
   return { dateString, time_str, slots }
 }
 

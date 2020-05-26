@@ -49,8 +49,15 @@ export default function Profile() {
   // get profile info from participants and coaches of purchased sessions
   useEffect(() => {
     if (isEmpty(sessions)) return;
-    const otherUsers = sessions.map(s => s.participants.concat(s.coach)).flat();
-    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
+    let otherUsers = sessions.map(s => [s.coach].concat(s.participants)).flat()
+
+    // filter out repeated ids
+    let filteredUsers = []
+    filteredUsers = [...new Set(otherUsers)].filter((item, index) => item !== undefined);
+    if (filteredUsers === []) {
+      filteredUsers = otherUsers.filter((item, index) => (item !== undefined) && (otherUsers.indexOf(item) === index));
+    }
+    axios.get(`api/v1/users/public-profile?users=${filteredUsers.toString()}`)
       .then(res => setPublicProfiles(res.data));
   }, [sessions])
 
@@ -173,7 +180,9 @@ export default function Profile() {
         isEmpty(sessions) ?
           <div className="w-100 border text-secondary text-center p-4">You don't have upcoming sessions. Come <Link to="/coaches">find a coach</Link> with us.</div> :
           <div className="" id="upcoming_sessions">
-            {!isEmpty(publicProfiles) && sessions.map(s => getSessionSummary(s, publicProfiles))}
+            {!isEmpty(publicProfiles) && sessions.map(s => {
+              if (s.participants && s.participants.includes(user._id)) return getSessionSummary(s, publicProfiles)
+            })}
           </div>)
     }
   }
@@ -207,7 +216,7 @@ export default function Profile() {
 
             <div className="col-12 col-md-2 d-flex flex-row flex-md-column justify-content-between align-items-center h-100 mt-4 my-md-2" style={{ height: "60px" }}>
               <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
-                {session.participants.length > 0 && session.participants.map((p, index) => {
+                {session.participants && session.participants.map((p, index) => {
                   return (
                     index < 3 && <div className="d-flex" key={p}>
                       <img className="rounded-circle img-thumbnail position-absolute" alt={p.name} id={others[p]} src={others[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />

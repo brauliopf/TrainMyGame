@@ -29,19 +29,31 @@ const Checkout = () => {
 
   // Effect
   useEffect(() => {
-    if (!state.auth.isAuthenticated); //history.push("/")
+    if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/")
     !order && createPaymentIntent(id);
     isEmpty(session) && loadSession(id);
   }, [id, order])
 
   useEffect(() => {
     if (isEmpty(session)) return;
-    const otherUsers = session.participants.concat(session.coach);
-    axios.get(`api/v1/users/public-profile?users=${otherUsers.toString()}`)
-      .then(res => setPublicProfiles(res.data));
+    getPublicProfiles();
   }, [session])
 
   // Auxiliary
+  const getPublicProfiles = async () => {
+    let otherUsers = [session.coach].concat(session.participants).flat()
+
+    // filter out repeated ids
+    let filteredUsers = []
+    filteredUsers = [...new Set(otherUsers)].filter((item, index) => item !== undefined);
+    if (filteredUsers === []) {
+      filteredUsers = otherUsers.filter((item, index) => (item !== undefined) && (otherUsers.indexOf(item) === index));
+    }
+
+    axios.get(`api/v1/users/public-profile?users=${filteredUsers.toString()}`).then(res => setPublicProfiles(res.data))
+    return;
+  }
+
   const isEmpty = obj => {
     return obj.length === 0 || Object.entries(obj).length === 0
   }
@@ -83,7 +95,7 @@ const Checkout = () => {
               }
             </div>
             <div className="col-12 col-lg-2 d-flex flex-row flex-lg-column justify-content-center my-4">
-              {session.participants.length > 0 &&
+              {session.participants &&
                 <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
                   {session.participants.map((p, index) => (index < 3 &&
                     <div className="d-flex" key={p}>
