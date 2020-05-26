@@ -10,13 +10,13 @@ export default function Coach() {
   const [coach, setCoach] = useState({});
   const [sessions, setSessions] = useState({});
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
-  const { id } = useParams();
+  const { id: coachId } = useParams();
 
   // Effects
   useEffect(() => {
-    loadCoach(id);
-    loadsessions(id);
-  }, [id]);
+    loadCoach();
+    loadsessions();
+  }, [coachId]);
 
   useEffect(() => {
     if (isEmpty(sessions)) return;
@@ -37,18 +37,15 @@ export default function Coach() {
     axios.get(`api/v1/users/public-profile?users=${filteredUsers.toString()}`).then(res => setPublicProfiles(res.data))
     return;
   }
-
   const isEmpty = (obj = {}) => {
     return obj.length === 0 || Object.entries(obj).length === 0
   }
-  const loadCoach = async id => {
-    axios.get(`/api/v1/coaches/${id}`).then(res => setCoach(res.data.coach))
+  const loadCoach = async () => {
+    axios.get(`/api/v1/coaches/${coachId}`).then(res => setCoach(res.data.coach))
   }
-  const loadsessions = coachId => {
+  const loadsessions = async () => {
     axios.get(`/api/v1/coaches/${coachId}/sessions`).then(res => setSessions(res.data.data))
   }
-
-  // Render UI
   const CoachPersonalData = ({ coach }) => {
     if (!coach.athlete) return "";
     return (
@@ -91,7 +88,7 @@ export default function Coach() {
         </div>
       </div>
 
-      {sessions &&
+      {!isEmpty(sessions) &&
         <div className="mt-4" id="sessions-info">
           <h4>Upcoming sessions</h4>
           {sessions.length > 0 && sessions.map(session => (

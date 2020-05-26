@@ -23,7 +23,17 @@ export default function SessionDetails(props) {
     }
   }
 
-  console.log("SessionDetail", session, coach)
+  const getSlotsAvailable = () => {
+    let text
+    if (!session.participants) text = `${session.capacity.max} slots available`;
+    else {
+      text = (session.capacity.max - (session.participants && session.participants.length || 0) > 1) ?
+        `${session.capacity.max - session.participants.length} slots available`
+        : "Last slot available";
+    }
+    return text;
+  }
+
   return (
     <div key={session._id}>
       {(session && coach) &&
@@ -40,16 +50,12 @@ export default function SessionDetails(props) {
               ({(new Date(session.agenda.start)).toLocaleTimeString()})
             </div>
           </div>
-          <div className="col-12 col-md-3 d-flex flex-column justify-content-center">
 
-            {session.capacity && session.participants &&
+
+          <div className="col-12 col-md-3 d-flex flex-column justify-content-center">
+            {session.capacity &&
               <div>
-                <div className="mt-2">{
-                  (session.capacity.max - session.participants.length > 1) ?
-                    `${session.capacity.max - session.participants.length} slots available`
-                    : "Last slot available"
-                }
-                </div>
+                <div className="mt-2">{getSlotsAvailable()}</div>
                 <div className="my-2 justify-content-center d-flex flex-row flex-md-column flex-lg-row">
                   <div className="mx-1">Current price:</div>
                   <div className="font-weight-bold">
@@ -60,24 +66,26 @@ export default function SessionDetails(props) {
               </div>
             }
           </div>
-          {session && session.participants &&
-            <div className="col-12 col-md-2 d-flex flex-row flex-md-column justify-content-between align-items-center mt-4 my-md-2">
-              {session.participants && <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
-                {session.participants.map((p, index) => (
-                  index < 3 && <div className="d-flex" key={index}>
-                    <img className="rounded-circle img-thumbnail position-absolute" alt={users[p].name} src={users[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
-                  </div>)
-                )}
-              </div>}
-              {(session.participants && session.participants.map(p => users[p]._id).includes(state.auth.isAuthenticated && state.auth.user._id)) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
-                <div>
-                  <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin(session._id)}>
-                    <i className="fas fa-play" /> Join
-                    </Link>
-                </div>
-              }
+
+          <div className="col-12 col-md-2 d-flex flex-row flex-md-column justify-content-between align-items-center mt-4 my-md-2">
+
+            <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
+              {session.participants && session.participants.map((p, index) => (
+                index < 3 && <div className="d-flex" key={index}>
+                  <img className="rounded-circle img-thumbnail position-absolute" alt={users[p].name} src={users[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
+                </div>)
+              )}
             </div>
-          }
+
+            {(session.participants && session.participants.map(p => users[p]._id).includes(state.auth.isAuthenticated && state.auth.user._id)) ?
+              <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
+              <div>
+                <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin(session._id)}>
+                  <i className="fas fa-play" /> Join
+                    </Link>
+              </div>
+            }
+          </div>
 
         </div>
       }
