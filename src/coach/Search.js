@@ -21,8 +21,8 @@ export default function Search() {
       let querySessions = res.data.sessions;
       if (!filters.distanceRange || filters.distanceRange.length === 0) setSessions(querySessions)
       else {
-        applyDistanceFilter(querySessions).then((populated) => {
-          setSessions(populated)
+        applyDistanceFilter(querySessions).then((filtered) => {
+          setSessions(filtered)
         })
       }
     })

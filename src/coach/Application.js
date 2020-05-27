@@ -64,7 +64,7 @@ export default function Application() {
     setLocation(user.location);
   }, [user])
 
-  const formInput = (name, type, label, required, pattern, invalidFeedback) => {
+  const formInput = (name, type, label, required, pattern) => {
     return (
       <div className="input-group mb-2">
         <div className="input-group-prepend">
@@ -200,7 +200,7 @@ export default function Application() {
                         required={true}
                         disabled={state.auth && state.auth.isAuthenticated}
                       />
-                      <div class="invalid-feedback">
+                      <div className="invalid-feedback">
                         <b>Let's try again. </b>This email is already taken. Is that you? Please provide the correct password or sign-in.
                       </div>
                     </div>
@@ -241,12 +241,12 @@ export default function Application() {
                   <ExperiencesInput experiences={getExperiences} setExperiences={setExperiences} />
                 }
                 <button type="button" className="btn btn-secondary btn-sm my-2" onClick={() => {
-                  const initXp = { type: "pro", division: "", conference: "", varsity: "", class: "", team: "" }
+                  const initXp = { type: "pro", division: "", conference: "", varsity: "", class: "", team: "", state: "" }
                   setExperiences(experiences.concat({ ...initXp }))
                 }}>+ add experience</button>
               </div>
             </div>
-            <div className="h4 mt-2">Coaching Experience</div>
+            <div className="h4 mt-2">Coaching Experience (Years)</div>
             <div className="row border pt-2" id="coaching-experience">
               <div className="col-12 col-sm-6">
                 {formInput("menLacrosse", "number", "Men Lacrosse")}

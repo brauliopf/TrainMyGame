@@ -45,7 +45,7 @@ const handleScriptLoad = (updateQuery, autoCompleteRef) => {
 
 const handlePlaceSelect = async (updateQuery) => {
   const addressObject = autoComplete.getPlace(); // get place from google api
-  updateQuery(addressObject);
+  if (addressObject && addressObject.address_components) updateQuery(addressObject);
 }
 
 const LocationInput = (props) => {
@@ -103,7 +103,6 @@ const LocationInput = (props) => {
     // Get place lat and long coordinates from places
     newData.geo = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() }
 
-    console.log("updateLocation", newData)
     state && state.auth && state.auth.isAuthenticated ?
       dispatch({ type: "UPDATE_LOCATION", location: newData }) :
       props.setLocation({ ...props.location, ...newData })
@@ -111,7 +110,7 @@ const LocationInput = (props) => {
 
   return (
     <div className="bg-light border my-4">
-      <label className="input-group-text" id="address">Address</label>
+      <label className="input-group-text">Address</label>
 
       <div className="form-row my-2 px-2">
 
@@ -119,7 +118,7 @@ const LocationInput = (props) => {
           <input
             label="address"
             name="address"
-            form="#random"
+            form="#prevent-global-submit-on-selection"
             className='form-control'
             ref={autoCompleteRef}
             onChange={e => setQuery(e.target.value)}

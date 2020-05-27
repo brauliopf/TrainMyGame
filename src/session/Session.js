@@ -132,7 +132,7 @@ const Session = () => {
                 <div className="col-12 col-md-8 mt-2">
                   <div className="bg-light p-3 border" id="bio-info">
                     <div className="h6">Bio info:</div>
-                    {publicProfiles[session.coach].athlete && publicProfiles[session.coach].athlete.bio || ""}
+                    {(publicProfiles[session.coach].athlete && publicProfiles[session.coach].athlete.bio) || ""}
                   </div>
                 </div>
               </div>

@@ -3,14 +3,6 @@ import $ from 'jquery'
 import authReducer from './AuthReducer'
 import axios from 'axios';
 
-function errorReducer(state, action) {
-  switch (action.type) {
-    case AUTH_ERROR:
-      return 'Failed to authenticate'
-    default:
-      return state
-  }
-}
 function layoutReducer(state, action) {
   switch (action.type) {
     case MODAL_ON:
@@ -24,6 +16,7 @@ function layoutReducer(state, action) {
 
   }
 }
+
 function paymentReducer(state, action) {
   switch (action.type) {
     case PAYMENT_AUTHORIZED:
@@ -34,6 +27,7 @@ function paymentReducer(state, action) {
       return state;
   }
 }
+
 function alertReducer(state, action) {
   switch (action.type) {
     case ADD_ALERT:
@@ -41,6 +35,14 @@ function alertReducer(state, action) {
       return state.alerts && state.alerts.concat([action.data])
     default:
       return state;
+  }
+}
+function errorReducer(state, action) {
+  switch (action.type) {
+    case AUTH_ERROR:
+      return 'Failed to authenticate'
+    default:
+      return state
   }
 }
 
@@ -51,10 +53,10 @@ export default function appReducer(state, action) {
 
   return {
     auth: authReducer(state.auth, action),
-    error: errorReducer(state, action),
-    layout: layoutReducer(state, action),
-    payment: paymentReducer(state, action),
-    alerts: alertReducer(state, action)
+    error: errorReducer(state.error, action),
+    layout: layoutReducer(state.layout, action),
+    payment: paymentReducer(state.payment, action),
+    alerts: alertReducer(state.alerts, action)
   }
 }
 
