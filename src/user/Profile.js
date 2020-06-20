@@ -179,11 +179,9 @@ export default function Profile() {
       return (
         isEmpty(sessions) ?
           <div className="w-100 border text-secondary text-center p-4">You don't have upcoming sessions. Come <Link to="/coaches">find a coach</Link> with us.</div> :
-          <div className="" id="upcoming_sessions">
-            {!isEmpty(publicProfiles) && sessions.map(s => {
-              if (s.participants && s.participants.includes(user._id)) return getSessionSummary(s, publicProfiles)
-            })}
-          </div>)
+          !isEmpty(publicProfiles) && sessions.map(s => {
+            if (s.participants && s.participants.includes(user._id)) return getSessionSummary(s, publicProfiles)
+          }))
     }
   }
   const getSessionSummary = (session, others) => {

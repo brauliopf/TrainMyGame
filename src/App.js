@@ -51,8 +51,7 @@ const App = () => {
       auth: '',
       error: '',
       layout: { modal: { display: false } },
-      payment: '',
-      alerts: []
+      payment: ''
     });
 
   // Side-effects

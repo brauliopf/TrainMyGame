@@ -19,6 +19,7 @@ const Checkout = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [order, setOrder] = useState("");
+  const [stripeCustomer, setStripeCustomer] = useState(0);
   const [session, setSession] = useState({});
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
 
@@ -29,7 +30,8 @@ const Checkout = () => {
 
   // Effect
   useEffect(() => {
-    if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/")
+    //if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/");
+    !stripeCustomer && getStripeCustomer();
     !order && createPaymentIntent(id);
     isEmpty(session) && loadSession(id);
   }, [id, order])
@@ -40,6 +42,11 @@ const Checkout = () => {
   }, [session])
 
   // Auxiliary
+  const getStripeCustomer = async () => {
+    axios.get(`api/v1/stripe/customers/${user.stripeId}`)
+      .then(cu => console.log("cu!!!", cu.data.stripeCustomer))
+  }
+
   const getPublicProfiles = async () => {
     let otherUsers = [session.coach].concat(session.participants).flat()
 

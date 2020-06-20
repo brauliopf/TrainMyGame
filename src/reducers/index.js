@@ -1,7 +1,53 @@
-import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_AUTHORIZED, ADD_ALERT } from './Actions'
+import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_AUTHORIZED } from './Actions'
+import { LOGIN, REGISTER, LOGOUT, UPDATE_PROFILE_PICTURE, UPDATE_LOCATION } from './Actions'
 import $ from 'jquery'
-import authReducer from './AuthReducer'
 import axios from 'axios';
+
+// application reducer: receives state and action and returns
+// the a single global state object
+// reducer Y must return state for action taken by reducer X
+export default function appReducer(state, action) {
+
+  return {
+    auth: authReducer(state.auth, action),
+    error: errorReducer(state.error, action),
+    layout: layoutReducer(state.layout, action),
+    payment: paymentReducer(state.payment, action)
+  }
+}
+
+function authReducer(state, action) {
+  switch (action.type) {
+    case LOGIN:
+    case REGISTER:
+      localStorage.setItem("token", action.data.token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${action.data.token}`;
+      localStorage.setItem("user", JSON.stringify(action.data.user));
+      return {
+        ...state,
+        isAuthenticated: true,
+        token: action.data.token,
+        user: action.data.user
+      };
+    case LOGOUT:
+      axios.defaults.headers.common['Authorization'] = '';
+      localStorage.clear();
+      return {};
+    case UPDATE_PROFILE_PICTURE:
+      return {
+        ...state,
+        user: { ...state.user, picture: action.url }
+      }
+    case UPDATE_LOCATION:
+      return {
+        ...state,
+        user: { ...state.user, location: action.location }
+      }
+
+    default:
+      return state
+  }
+}
 
 function layoutReducer(state, action) {
   switch (action.type) {
@@ -13,7 +59,6 @@ function layoutReducer(state, action) {
       return state
     default:
       return state
-
   }
 }
 
@@ -28,15 +73,6 @@ function paymentReducer(state, action) {
   }
 }
 
-function alertReducer(state, action) {
-  switch (action.type) {
-    case ADD_ALERT:
-      console.log("ADD", state, action)
-      return state.alerts && state.alerts.concat([action.data])
-    default:
-      return state;
-  }
-}
 function errorReducer(state, action) {
   switch (action.type) {
     case AUTH_ERROR:
@@ -45,19 +81,3 @@ function errorReducer(state, action) {
       return state
   }
 }
-
-// application reducer: receives state and action and returns
-// the a single global state object
-// reducer Y must return state for action taken by reducer X
-export default function appReducer(state, action) {
-
-  return {
-    auth: authReducer(state.auth, action),
-    error: errorReducer(state.error, action),
-    layout: layoutReducer(state.layout, action),
-    payment: paymentReducer(state.payment, action),
-    alerts: alertReducer(state.alerts, action)
-  }
-}
-
-// Auxiliary functions
