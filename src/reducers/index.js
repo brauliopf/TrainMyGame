@@ -1,5 +1,5 @@
 import { AUTH_ERROR, MODAL_ON, MODAL_OFF, PAYMENT_AUTHORIZED } from './Actions'
-import { LOGIN, REGISTER, LOGOUT, UPDATE_PROFILE_PICTURE, UPDATE_LOCATION } from './Actions'
+import { LOGIN, REGISTER, LOGOUT, UPDATE_PROFILE_PICTURE, UPDATE_LOCATION, UPDATE_USER } from './Actions'
 import $ from 'jquery'
 import axios from 'axios';
 
@@ -43,7 +43,11 @@ function authReducer(state, action) {
         ...state,
         user: { ...state.user, location: action.location }
       }
-
+    case UPDATE_USER:
+      return {
+        ...state,
+        user: { ...state.user, ...action.newData }
+      }
     default:
       return state
   }
@@ -62,6 +66,7 @@ function layoutReducer(state, action) {
   }
 }
 
+// TODO: submit additional data with stripe credit usage on update order
 function paymentReducer(state, action) {
   switch (action.type) {
     case PAYMENT_AUTHORIZED:

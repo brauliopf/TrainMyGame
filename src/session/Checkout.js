@@ -19,7 +19,7 @@ const Checkout = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [order, setOrder] = useState("");
-  const [stripeCustomer, setStripeCustomer] = useState(0);
+  const [stripeCustomer, setStripeCustomer] = useState({});
   const [session, setSession] = useState({});
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
 
@@ -30,11 +30,15 @@ const Checkout = () => {
 
   // Effect
   useEffect(() => {
-    //if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/");
-    !stripeCustomer && getStripeCustomer();
-    !order && createPaymentIntent(id);
+    if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/");
+    isEmpty(stripeCustomer) && getStripeCustomer();
     isEmpty(session) && loadSession(id);
-  }, [id, order])
+  }, [])
+
+  useEffect(() => {
+    if (isEmpty(stripeCustomer)) return;
+    isEmpty(order) && getOrder(id, stripeCustomer);
+  }, [stripeCustomer, id])
 
   useEffect(() => {
     if (isEmpty(session)) return;
@@ -43,10 +47,16 @@ const Checkout = () => {
 
   // Auxiliary
   const getStripeCustomer = async () => {
-    axios.get(`api/v1/stripe/customers/${user.stripeId}`)
-      .then(cu => console.log("cu!!!", cu.data.stripeCustomer))
+    const stripeId = user.stripeId || 0
+    axios.get(`api/v1/stripe/customers/${stripeId}`)
+      .then(cu => { setStripeCustomer(cu.data.stripeCustomer); return cu.data.stripeCustomer.id })
+      .then(stripeId => dispatch({ type: "UPDATE_USER", newData: { stripeId: stripeId } }));
   }
-
+  const getOrder = async (id, stripeCustomer) => {
+    // Get Client Secret from Payment Intent
+    axios.post(`/api/v1/sessions/${id}/orders`, { stripeCustomer: stripeCustomer })
+      .then(res => { setOrder(res.data.order_id); setClientSecret(res.data.client_secret); })
+  }
   const getPublicProfiles = async () => {
     let otherUsers = [session.coach].concat(session.participants).flat()
 
@@ -60,13 +70,8 @@ const Checkout = () => {
     axios.get(`api/v1/users/public-profile?users=${filteredUsers.toString()}`).then(res => setPublicProfiles(res.data))
     return;
   }
-
   const isEmpty = obj => {
     return obj.length === 0 || Object.entries(obj).length === 0
-  }
-  const createPaymentIntent = async (id) => {
-    axios.post(`/api/v1/sessions/${id}/orders`)
-      .then(res => { setClientSecret(res.data.client_secret); setOrder(res.data.order_id); })
   }
   const loadSession = async (id) => {
     axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session));
@@ -123,13 +128,17 @@ const Checkout = () => {
       </div>
     )
   }
+
+  // https://stripe.com/docs/api/customer_balance_transactions/create?lang=node
   const handleSubmit = async ev => {
     ev.preventDefault();
     setProcessing(true);
 
+    // TODO: execute credit card transaction only if necessary
+
     const payload = await stripe.confirmCardPayment(clientSecret, {
       receipt_email: state.auth.user.email,
-      payment_method: { // id of an existing PaymentMethod || { new PaymentMethod details }
+      payment_method: {
         card: elements.getElement(CardElement),
         billing_details: {
           name: ev.target.name.value

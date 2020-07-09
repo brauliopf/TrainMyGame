@@ -5,6 +5,7 @@ export const LOGIN = "LOGIN"
 export const LOGOUT = "LOGOUT"
 export const UPDATE_PROFILE_PICTURE = "UPDATE_PROFILE_PICTURE"
 export const UPDATE_LOCATION = "UPDATE_LOCATION"
+export const UPDATE_USER = "UPDATE_USER"
 
 // Layout
 export const MODAL_ON = "MODAL_ON"
