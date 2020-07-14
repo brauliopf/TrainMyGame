@@ -3,12 +3,17 @@ import { Context } from '../Contexts'
 import { Link } from 'react-router-dom';
 import $ from 'jquery'
 import { s3Config } from '../util/s3';
+// import img_logo from '../resources/logo.png';
+import Radium from 'radium';
+import style from '../styles/Home__Style.js';
 
 const HorizontalNav = (props) => {
 
   // load creative
-  const img_logo = `${s3Config.bucketURL}/app/layout/tmg-logo.jpg`;
+  const img_logo = `${s3Config.bucketURL}/app/layout/logo.jpg`;
   const { state, dispatch } = useContext(Context);
+
+  console.log(s3Config.bucketURL);
 
   const getUserName = () => {
     let name = state.auth.user.name
@@ -24,7 +29,7 @@ const HorizontalNav = (props) => {
 
         {/* Logo */}
         <Link to="/" className="navbar-brand text-ligth  text-uppercase" onClick={() => $("#navBarNav").collapse('hide')}>
-          <img src={img_logo} className="card-img-top" alt="..." />
+          <img src={img_logo} style={style.logo} alt="..." />
         </Link>
 
         {/* Sandwich button */}
@@ -119,4 +124,4 @@ const HorizontalNav = (props) => {
   );
 }
 
-export default HorizontalNav;
+export default Radium(HorizontalNav);

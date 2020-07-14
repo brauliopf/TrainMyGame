@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "geolib": "^3.2.1",
     "jquery": "^3.4.1",
+    "radium": "^0.26.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-request-hook": "^2.1.1",
