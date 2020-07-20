@@ -48,9 +48,10 @@ const Checkout = () => {
   // Auxiliary
   const getStripeCustomer = async () => {
     const stripeId = user.stripeId || 0
-    axios.get(`api/v1/stripe/customers/${stripeId}`)
-      .then(cu => { setStripeCustomer(cu.data.stripeCustomer); return cu.data.stripeCustomer.id })
-      .then(stripeId => dispatch({ type: "UPDATE_USER", newData: { stripeId: stripeId } }));
+
+    const response = await axios.post(`api/v1/stripe/customers/${stripeId}`, { user: state.auth.user });
+
+    dispatch({ type: "UPDATE_USER", newData: { stripeId: response.data.stripeId } })
   }
   const getOrder = async (id, stripeCustomer) => {
     // Get Client Secret from Payment Intent
