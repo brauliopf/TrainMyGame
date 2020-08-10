@@ -150,7 +150,8 @@ export default function Profile() {
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        const newUrl = `${s3Config.bucketURL}/${data.key}`;
+        debugger;
+        const newUrl = `${s3Config.bucketURL}/${data.Key}`;
         updateProfile({ picture: newUrl });
       }
     })
