@@ -24,7 +24,7 @@ const HorizontalNav = (props) => {
 
         {/* Logo */}
         <Link to="/" className="navbar-brand text-ligth  text-uppercase" onClick={() => $("#navBarNav").collapse('hide')}>
-          <img src={img_logo} className="card-img-top" alt="..." />
+          <img style={{width: '150px', marginLeft: '20px'}} src={img_logo} className="card-img-top" alt="..." />
         </Link>
 
         {/* Sandwich button */}

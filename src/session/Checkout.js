@@ -30,7 +30,7 @@ const Checkout = () => {
   // Effect
   useEffect(() => {
     if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/")
-    !order && createPaymentIntent(id);
+    createPaymentIntent(id);
     isEmpty(session) && loadSession(id);
   }, [id, order])
 
@@ -58,8 +58,12 @@ const Checkout = () => {
     return obj.length === 0 || Object.entries(obj).length === 0
   }
   const createPaymentIntent = async (id) => {
-    axios.post(`/api/v1/sessions/${id}/orders`)
-      .then(res => { setClientSecret(res.data.client_secret); setOrder(res.data.order_id); })
+    axios.post(`/api/v1/sessions/${id}/orders/createPaymentIntent`)
+      .then(res => {
+        setClientSecret(res.data.clientSecret);
+        console.log("Here's the client secret " + res.data.client_secret);
+        //setOrder(res.data.order_id);
+      })
   }
   const loadSession = async (id) => {
     axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session));
