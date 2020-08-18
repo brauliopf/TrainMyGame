@@ -12,7 +12,7 @@ export default function ProfilePicUpload({ setApplicationPic = () => { return; }
 
   const { state, } = useContext(Context);
   const user = state.auth && state.auth.isAuthenticated && state.auth.user
-  const [picture, setPicture] = useState(`${s3Config.bucketURL}/avatar/default/03.png`);
+  const [picture, setPicture] = useState(`${s3Config.bucketURL}/avatar/default/01.png`);
 
   useEffect(() => {
     if (user && user.picture && user.picture.length > 0) setPicture(user.picture);
