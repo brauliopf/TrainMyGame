@@ -36,7 +36,7 @@ const FAQ = () => {
           <div className="card-body">
             <h4><b>What is TrainMyGame's cancellation policy?</b></h4>
             <p>
-              -Participant are able to cancel or leave a session up to 24 hours before a training session is scheduled to take place?
+              -Participant are able to cancel or leave a session up to 24 hours before a training session is scheduled to take place.
             </p>
           </div>
 
