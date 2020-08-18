@@ -64,7 +64,7 @@ const Inbox = () => {
 
   // console.log("return", messages)
   return (
-    <div id="coach">
+    <div id="coach" style={{marginTop: '10px'}}>
       <div className="row">
         <p className="col h3">Messages</p>
       </div>

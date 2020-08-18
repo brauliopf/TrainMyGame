@@ -33,7 +33,7 @@ export default function Search() {
     if (!user || (user.location && !user.location.geo)) return querySessions;
     let distanceFilteredSessions = querySessions
 
-    // 
+    //
     // coachSessions = { coach_id: [{session}] }
     const reducer = (allSessions, coachSessions) => {
       // init object element with coach_id as key
@@ -91,7 +91,7 @@ export default function Search() {
     <div id='search'>
       <SearchFilter setFilters={setFilters} filters={filters} />
 
-      <div className="row">
+      <div className="row" style={{marginTop: '10px'}}>
         <div className="col-12 d-flex justify-content-between">
           <p className="h3">Coaches</p>
           <div className="my-auto" type="button" data-toggle="modal" data-target="#coachFilterModal">

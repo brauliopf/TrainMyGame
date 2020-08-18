@@ -35,7 +35,7 @@ export default function Home() {
           <img style={{width: '100%', height: 'auto'}} src={img_lacrosse_session} className="my-4 mx-auto d-block rounded" alt="..." />
           <div style={{paddingLeft: '1.25em', paddingRight: '1.25em'}}>
             <span className="font-weight-bold">What is TrainMyGame?</span><br></br>
-              TrainMyGame is an online platform for connecting athletes to elite coaches. Go to the search page to view available coaches and their sessions.
+              TrainMyGame is an online platform for connecting athletes to elite coaches. Click 'find coaches' to go to the search page and find sessions!
             </div>
         </div>
 
@@ -44,7 +44,7 @@ export default function Home() {
 
           <div className="card-body" style={isMobile ? styles.mobileAlignText : {}}>
             <h5 className="card-title">Looking to train?</h5>
-            <p className="card-text">Get access to vetted coaches based on location and activity.</p>
+            <p className="card-text">Get access to high quality, pre-vetted coaches based on their location and existing training sessions.</p>
             <div>
               {state.auth.isAuthenticated ?
                 <Link to="/coaches" className="btn btn-primary align-items-center">Find coaches near you</Link> :
