@@ -2,10 +2,6 @@ import React from 'react';
 
 export default () => {
 
-  const img_about_1 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/01.png';
-  const img_about_2 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/02.png';
-  const img_about_3 = 'https://train-my-game.s3.us-east-2.amazonaws.com/app/content/about/03.png';
-
   return (
     <div id="row mb-5 about" style={{marginTop: '10px'}}>
       <h3 className="col-12">About Us</h3>
@@ -25,13 +21,6 @@ export default () => {
 
         </div>
       </div>
-      {/*<div>*/}
-      {/*  <div className="text-center mt-4">*/}
-      {/*    <img src={img_about_1} className="rounded col col-sm-3" alt="..." />*/}
-      {/*    <img src={img_about_2} className="rounded col col-sm-3 mt-3 mt-0" alt="..." />*/}
-      {/*    <img src={img_about_3} className="rounded col col-sm-3 mt-3 mt-0" alt="..." />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
     </div>
   );
 };

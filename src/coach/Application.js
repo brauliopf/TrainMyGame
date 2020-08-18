@@ -143,7 +143,7 @@ export default function Application() {
         if (data.picture === "" || data.picture.search("/temporary/") > 0) {
           const source = (data.picture.search("/temporary/") > 0) ?
             `${s3Config.bucketName}/avatar/temporary/${data.picture.split("temporary/")[1]}` :
-            `${s3Config.bucketURL}/avatar/default/03.png`
+            `${s3Config.bucketURL}/avatar/default/01.png`
           const params = {
             ACL: "public-read",
             Bucket: `${s3Config.bucketName}`,
@@ -171,7 +171,7 @@ export default function Application() {
   }
 
   return (
-    <div id="profile">
+    <div id="profile" style={{marginTop: '10px'}}>
       <h3>Apply for a Coaching Position</h3>
       <div className="row border p-2 p-md-4">
         <div className="col-12">
