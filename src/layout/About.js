@@ -10,7 +10,7 @@ export default () => {
 
   return (
     <div id="row mb-5 about">
-      <h3 className="col-12" style={{marginTop: '10px'}}>About Us</h3>
+      <h3 className="col-12">About Us</h3>
       <div className="col-12" >
         <p style={styles.paragraph}>
           TrainMyGame was created to provide athletes access to the best coaches in their surrounding areas. Coaches that understand what it takes to play at either the college or professional levels, and have extensive backgrounds in their sport and position to help get you to where they've been.

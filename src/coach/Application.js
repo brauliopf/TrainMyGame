@@ -171,7 +171,7 @@ export default function Application() {
   }
 
   return (
-    <div id="profile" style={{marginTop: '10px'}}>
+    <div id="profile">
       <h3>Apply for a Coaching Position</h3>
       <div className="row border p-2 p-md-4">
         <div className="col-12">

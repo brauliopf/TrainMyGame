@@ -91,7 +91,7 @@ export default function Search() {
     <div id='search'>
       <SearchFilter setFilters={setFilters} filters={filters} />
 
-      <div className="row" style={{marginTop: '10px'}}>
+      <div className="row">
         <div className="col-12 d-flex justify-content-between">
           <p className="h3">Coaches</p>
           <div className="my-auto" type="button" data-toggle="modal" data-target="#coachFilterModal">

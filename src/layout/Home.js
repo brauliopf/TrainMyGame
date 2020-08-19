@@ -15,10 +15,6 @@ export default function Home() {
   const { state, dispatch } = useContext(Context);
   const user = state.auth.isAuthenticated ? state.auth.user : false
 
-  console.log(typeof(img_lacrosse_coach));
-  console.log(typeof(Link));
-  console.log(typeof (Home));
-
   const styles = {
     mobileAlignText: {
       textAlign: 'center'
