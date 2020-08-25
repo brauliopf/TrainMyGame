@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { Context } from '../Contexts'
 import { useParams } from "react-router";
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
-// https://stripe.com/docs/payments/integration-builder
 const Checkout = () => {
+
+  // TODO: fix location issue - may be a problem with original Google API code located outside of this file
+  // if a user goes to create a session and you wait multiple seconds, an error message will appear in the Address bar.
 
   const { state, dispatch } = useContext(Context);
   const user = (state.auth.isAuthenticated && state.auth.user) || {}
-  const [clientSecret, setClientSecret] = useState(null);
   const stripe = useStripe();
   const elements = useElements();
   const { id } = useParams();
@@ -18,28 +19,78 @@ const Checkout = () => {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [order, setOrder] = useState("");
-  const [session, setSession] = useState({});
+  const [session, setSession] = useState(null);
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
+  const [cardReady, setCardReady] = useState(false);
+  const [sessionLoadedOnce, setSessionLoadedOnce] = useState(false);
 
   // Control vars & UI elements
   const [error, setError] = useState(null);
   const [succeeded, setSucceeded] = useState(false);
-  const [processing, setProcessing] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   // Effect
   useEffect(() => {
-    if (!state.auth.isAuthenticated || (user._id === session.coach)) history.push("/")
-    createPaymentIntent(id);
-    isEmpty(session) && loadSession(id);
-  }, [id, order])
+    !sessionLoadedOnce && loadSession(id);
+  }, [session])
 
   useEffect(() => {
-    if (isEmpty(session)) return;
+    if (sessionNotLoaded()) {
+      return;
+    }
     getPublicProfiles();
   }, [session])
 
+  // create the card element, insert it into the form and ensure that it has the proper
+  // coach's stripe account id.
+  useEffect(() => {
+    if (stripe && elements) {
+      if (sessionNotLoaded()) {
+        return;
+      }
+      if (cardReady) {
+        return;
+      }
+
+      // Custom styling can be passed to options when creating an Element.
+      const style = {
+        base: {
+          // Add your base input styles here. For example:
+          fontSize: '16px',
+          color: '#32325d',
+        },
+      };
+
+      // Create an instance of the card Element.
+      const card = elements.create('card', {style: style});
+      card.mount('#card-element');
+
+      setCardReady(true);
+
+      let _session = session;
+
+      const form = document.getElementById('payment-form');
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        stripe.createToken(card).then(function(result) {
+          if (result.error) {
+            // Inform the customer that there was an error.
+            setError(result.error.message)
+          } else {
+            // Send the token to your server.
+            stripeTokenHandler(result.token, _session);
+          }
+        })
+      });
+    }
+  }, [stripe, elements, session, cardReady])
+
   // Auxiliary
+
+  function sessionNotLoaded() {
+    return !session;
+  }
+
   const getPublicProfiles = async () => {
     let otherUsers = [session.coach].concat(session.participants).flat()
 
@@ -57,16 +108,10 @@ const Checkout = () => {
   const isEmpty = obj => {
     return obj.length === 0 || Object.entries(obj).length === 0
   }
-  const createPaymentIntent = async (id) => {
-    axios.post(`/api/v1/sessions/${id}/orders/createPaymentIntent`)
-      .then(res => {
-        setClientSecret(res.data.clientSecret);
-        console.log("Here's the client secret " + res.data.client_secret);
-        //setOrder(res.data.order_id);
-      })
-  }
+
   const loadSession = async (id) => {
-    axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session));
+    await axios.get(`/api/v1/sessions/${id}`).then(res => setSession(res.data.session))
+      .then(res => setSessionLoadedOnce(true));
   }
   const getSessionAddress = (location) => {
     if (!location) return;
@@ -120,111 +165,102 @@ const Checkout = () => {
       </div>
     )
   }
-  const handleSubmit = async ev => {
-    ev.preventDefault();
-    setProcessing(true);
 
-    const payload = await stripe.confirmCardPayment(clientSecret, {
-      receipt_email: state.auth.user.email,
-      payment_method: { // id of an existing PaymentMethod || { new PaymentMethod details }
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: ev.target.name.value
-        }
+  const stripeTokenHandler = async function(token, session) {
+    const recipientStripeId =
+      await axios.get(`api/v1/coaches/${session.coach}`).then(res => res.data.coach.stripeId);
+
+    axios({
+      method: 'post',
+      url: `/api/v1/stripe/charge/${recipientStripeId}`,
+      data: `email=${user.email}&stripeToken=${token.id}&amount=${session.price}`,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
       }
-    });
+    }).then(
+      res => setProcessing(false)
+    );
 
-    if (payload.error) {
-      setError(`Payment failed. ${payload.error.message}`);
-      setProcessing(false);
-    } else if ((payload.paymentIntent && payload.paymentIntent.status === 'succeeded')) {
-      setError(null);
-      setProcessing(false);
-      setSucceeded(true);
-      dispatch({ type: "PAYMENT_AUTHORIZED", data: { order, session: session._id, user: state.auth.user._id, paymentIntent: payload.paymentIntent.id } });
-      setTimeout(function () { history.push(`/sessions/${session._id}`) }, 3000);
-    }
-
+    setProcessing(true);
   }
 
-  return (
-    <div id="checkout">
-      <div className="row">
-        <div className="col-12">
-          <p className="h3">Confirm payment</p>
-        </div>
-        <div className="col-12 border">
-          <div className="row">
-            {getCheckoutSummary()}
+  if (sessionNotLoaded()) {
+    return <h2>Loading...</h2>
+  } else {
+    return (
+      <div id="checkout">
+        <div className="row">
+          <div className="col-12">
+            <p className="h3">Confirm payment</p>
           </div>
-          <form className="row d-flex flex-column my-4" id="payment-form" onSubmit={handleSubmit}>
-            <fieldset className="col-12 col-md-6">
-              <div className="mx-2 border-bottom">
-                <label htmlFor="name" className="">Name</label>
-                <input
-                  className="w-100 border-0"
-                  id="name"
-                  type="text"
-                  placeholder="Name"
-                  required
-                  autoComplete="name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                />
-              </div>
-              <div className="m-2 border-bottom">
-                <label htmlFor="phone" className="">Phone</label>
-                <input
-                  className="w-100 border-0"
-                  id="phone"
-                  type="tel"
-                  placeholder="(XXX) XXX-XXXX"
-                  required
-                  autoComplete="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="m-2 border-bottom">
-                <label htmlFor="card" className="">Credit Card</label>
-                <div className="border-0 p-1">
-                  <CardElement
-                    id="card-element"
-                    className=""
+          <div className="col-12 border">
+            <div className="row">
+              {getCheckoutSummary()}
+            </div>
+            <form className="row d-flex flex-column my-4" id="payment-form">
+              <fieldset className="col-12 col-md-6">
+                <div className="mx-2 border-bottom">
+                  <label htmlFor="name" className="">Name</label>
+                  <input
+                    className="w-100 border-0"
+                    id="name"
+                    type="text"
+                    placeholder="Name"
+                    required
+                    autoComplete="name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
                   />
                 </div>
+                <div className="m-2 border-bottom">
+                  <label htmlFor="phone" className="">Phone</label>
+                  <input
+                    className="w-100 border-0"
+                    id="phone"
+                    type="tel"
+                    placeholder="(XXX) XXX-XXXX"
+                    required
+                    autoComplete="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                  />
+                </div>
+                <div className="m-2 border-bottom">
+                  <label htmlFor="card" className="">Credit Card</label>
+                  <div className="border-0 p-1" id="card-element">
+                  </div>
+                </div>
+              </fieldset>
+
+              <div className="col-12 mt-2 d-flex flex-column align-items-end">
+                <button
+                  className="btn-primary w-25 m-2"
+                  id="submit"
+                  disabled={!stripe || processing}
+                >Pay</button>
+                {error && (
+                  <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">
+                    {error}
+                  </div>
+                )}
               </div>
-            </fieldset>
 
-            <div className="col-12 mt-2 d-flex flex-column align-items-end">
-              <button
-                className="btn-primary w-25 m-2"
-                id="submit"
-                disabled={processing}
-              >Pay</button>
-              {error && (
-                <div className="card-error bg-light text-danger p-2" role="alert">
-                  {error}
-                </div>
-              )}
-            </div>
+              <div className="col-12 mt-2 text-center bg-light">
+                {succeeded && (
+                  <div className="text-success p-2" role="alert">
+                    <span className="font-weight-bold">Thank you for your payment.</span>
+                    <br />Way to go! Get ready for your training session.
+                  </div>
+                )}
+              </div>
 
-            <div className="col-12 mt-2 text-center bg-light">
-              {succeeded && (
-                <div className="text-success p-2" role="alert">
-                  <span className="font-weight-bold">Thank you for your payment.</span>
-                  <br />Way to go! Get ready for your training session.
-                </div>
-              )}
-            </div>
+            </form>
+          </div>
+        </div >
 
-          </form>
-        </div>
-      </div >
-
-    </div>
-  )
-
+      </div>
+    )
+  }
 }
 
 export default Checkout;

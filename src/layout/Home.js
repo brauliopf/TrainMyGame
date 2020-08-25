@@ -56,6 +56,10 @@ export default function Home() {
             </div>
             }
 
+            <div>
+              <a href="https://connect.stripe.com/express/oauth/authorize?client_id=ca_HrehXouvjTAHHG1gRAGdZKuEfCUZO23z&state=test_state_token_12398127&suggested_capabilities[]=transfers&stripe_user[email]=user@example.com"></a>
+            </div>
+
         </div>
       </div>
     </div >

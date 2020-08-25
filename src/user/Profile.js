@@ -9,6 +9,7 @@ import { positions } from '../util/input';
 import LocationInput from './LocationInput.js';
 import CoachCardId from '../coach/CoachCardId';
 import { s3Config } from '../util/s3';
+import styles from '../styles/Profile';
 
 AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
@@ -23,12 +24,35 @@ export default function Profile() {
   const [sessions, setSessions] = useState([]); // [ {session} ]
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [location, setLocation] = useState({});
+  const [accountLink, setAccountLink] = useState({});
   const getLocation = () => location;
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => positions.map(p => ({ value: p, label: p.toUpperCase(), key: p }));
   const options = preparePositionsToSelect(positions)
 
+  useEffect(()=>{
+    const url = `api/v1/stripe/accountLink/${user.stripeId}`;
+    axios.get(url).then(
+      (res) => {
+        console.log(res);
+        setAccountLink(res.data.url);
+      }
+    ).catch(
+      (err) => console.log(err)
+    )
+  }, [])
+
+  // generate StripeIds for coaches
+  useEffect(() => {
+    // this unfortunate line of code has to do with the inconsistency of the data in our database,
+    // and the manifestation of different JS object types because of the inconsistency
+    // need to check if each field exists in order before checking for a deeper nested value
+    if (user.athlete && user.athlete.type && user.athlete.type == "coach") {
+      let url = '/api/v1/stripe/generateStripeClient/' + user._id
+      axios.post(url);
+    }
+  }, []);
 
   // Effects
   useEffect(() => {
@@ -242,6 +266,13 @@ export default function Profile() {
 
   return (
     <div id="profile">
+
+      <a href={accountLink}>
+        <button style={styles.connectStripeButton}>
+          <span style={styles.connectStripeButtonSpan}>Connect with Stripe</span>
+        </button>
+      </a>
+
       <h3>Profile</h3>
       <div className="row border">
         <div className="col-12 col-md-4 col-lg-3 pt-4 d-flex flex-column justify-content-start text-center">
