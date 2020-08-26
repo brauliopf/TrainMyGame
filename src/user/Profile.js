@@ -34,40 +34,15 @@ export default function Profile() {
   const preparePositionsToSelect = positions => positions.map(p => ({ value: p, label: p.toUpperCase(), key: p }));
   const options = preparePositionsToSelect(positions)
 
-  // TODO: test this and then delete
-  // useEffect(() => {
-  //   async function getAccountEnabled() {
-  //     let stripeId = user?.stripeId;
-  //     const isEnabled = await axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
-  //       .then((res) => {setIsEnabled(res.data)})
-  //   }
-  //   getAccountEnabled();
-  // }, [])
-
+  // Effects
   useEffect(() => {
     function stripeHandler() {
       isCoachAccountEnabled()
-        .then((enabled) => {
-          console.log(enabled);
-          if (!enabled) {
-            stripeIdAndAccountLinkCreation().then()
-          }
-        });
+      stripeIdAndAccountLinkCreation()
     }
     if (isCoach) stripeHandler();
   }, [])
 
-  // generate StripeIds for coaches
-  useEffect(() => {
-    // this unfortunate line of code has to do with the inconsistency of the data in our database,
-    // and the manifestation of different JS object types because of the inconsistency
-    // need to check if each field exists in order before checking for a deeper nested value
-    if (user.athlete && user.athlete.type && user.athlete.type == "coach") {
-
-    }
-  }, []);
-
-  // Effects
   useEffect(() => {
     if (isEmpty(user)) return history.push("/")
 
@@ -107,34 +82,35 @@ export default function Profile() {
   //
 
   // a function that checks if the current coach profile has added their acct credentials
-  const isCoachAccountEnabled = async () => {
-    async function getAccountEnabled() {
+  const isCoachAccountEnabled = () => {
+    if (!user.stripeId) {
+      return false
+    }
+    function getAccountEnabled() {
       let stripeId = user?.stripeId;
-      return await axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
-        .then((res) => {return res.data});
+      axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
+        .then((res) => {if (res.data) setIsEnabled(true)});
     }
     return getAccountEnabled();
   }
 
   // a function that handles the logic of calling generateStripeId and generateStripeAcctLink accordingly
-  const stripeIdAndAccountLinkCreation = async () => {
+  const stripeIdAndAccountLinkCreation = () => {
     let stripeId = user?.stripeId;
     if (!stripeId) {
-      stripeId = await generateStripeId();
+      stripeId = generateStripeId();
     }
 
-    generateStripeAcctLink(stripeId).then((link) => {
-      setAccountLink(link);
-      setProcessingAcctLink(false);
-    });
+    generateStripeAcctLink(stripeId);
   }
 
   // generate a link for a coach to initialize their bank account data with us
-  const generateStripeAcctLink = async (stripeId) => {
+  const generateStripeAcctLink = (stripeId) => {
     const url = `api/v1/stripe/accountLink/${stripeId}`;
-    return axios.get(url)
+    axios.get(url)
       .then(res =>  {
-        return res.data.url;
+        setProcessingAcctLink(false);
+        setAccountLink(res.data.url);
       })
       .catch(err => `Failed to generate Stripe Connect link: ${err}`)
   }
@@ -324,13 +300,6 @@ export default function Profile() {
 
   return (
     <div id="profile">
-
-      <a href={processingAcctLink ? undefined : accountLink}>
-        <button style={processingAcctLink ? {...styles.connectStripeButton, opacity: '0.3'} : styles.connectStripeButton}>
-          <span style={styles.connectStripeButtonSpan}>Connect with Stripe</span>
-        </button>
-      </a>
-
       <h3>Profile</h3>
       <div className="row border">
         <div className="col-12 col-md-4 col-lg-3 pt-4 d-flex flex-column justify-content-start text-center">
@@ -465,7 +434,16 @@ export default function Profile() {
       <div className="row my-4">
         <div className="col-12 d-flex justify-content-between my-2">
           <h4>Upcoming sessions</h4>
-          {user.athlete && user.athlete.type === "coach" &&
+          {
+            isCoach && !isEnabled &&
+            <a href={processingAcctLink ? undefined : accountLink}>
+              <button style={processingAcctLink ? {...styles.connectStripeButton, opacity: '0.3'} : styles.connectStripeButton}>
+                <span style={styles.connectStripeButtonSpan}>Connect with Stripe</span>
+              </button>
+            </a>
+          }
+          {
+            isCoach && isEnabled &&
             <Link to="/sessions/new" className="btn btn-primary my-2 my-md-0">Create a session</Link>
           }
         </div>
