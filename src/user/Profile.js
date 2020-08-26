@@ -45,15 +45,16 @@ export default function Profile() {
   // }, [])
 
   useEffect(() => {
-    async function stripeHandler() {
-      await isCoachAccountEnabled()
-        .then((_isEnabled) => setIsEnabled(_isEnabled));
-      debugger;
-      if (!isEnabled) {
-        stripeIdAndAccountLinkCreation().then();
-      }
+    function stripeHandler() {
+      isCoachAccountEnabled()
+        .then((enabled) => {
+          console.log(enabled);
+          if (!enabled) {
+            stripeIdAndAccountLinkCreation().then()
+          }
+        });
     }
-    if (isCoach) stripeHandler().then();
+    if (isCoach) stripeHandler();
   }, [])
 
   // generate StripeIds for coaches
@@ -110,7 +111,7 @@ export default function Profile() {
     async function getAccountEnabled() {
       let stripeId = user?.stripeId;
       return await axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
-        .then((res) => {setIsEnabled(res.data)});
+        .then((res) => {return res.data});
     }
     return getAccountEnabled();
   }
@@ -122,16 +123,18 @@ export default function Profile() {
       stripeId = await generateStripeId();
     }
 
-    generateStripeAcctLink(stripeId).then();
+    generateStripeAcctLink(stripeId).then((link) => {
+      setAccountLink(link);
+      setProcessingAcctLink(false);
+    });
   }
 
   // generate a link for a coach to initialize their bank account data with us
   const generateStripeAcctLink = async (stripeId) => {
     const url = `api/v1/stripe/accountLink/${stripeId}`;
-    axios.get(url)
+    return axios.get(url)
       .then(res =>  {
-        setProcessingAcctLink(false);
-        setAccountLink(res.data.url)
+        return res.data.url;
       })
       .catch(err => `Failed to generate Stripe Connect link: ${err}`)
   }
