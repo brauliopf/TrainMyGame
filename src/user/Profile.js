@@ -9,6 +9,7 @@ import { positions } from '../util/input';
 import LocationInput from './LocationInput.js';
 import CoachCardId from '../coach/CoachCardId';
 import { s3Config } from '../util/s3';
+import styles from '../styles/Profile';
 
 AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
@@ -23,14 +24,25 @@ export default function Profile() {
   const [sessions, setSessions] = useState([]); // [ {session} ]
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [location, setLocation] = useState({});
+  const [accountLink, setAccountLink] = useState('');
+  const [processingAcctLink, setProcessingAcctLink] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
   const getLocation = () => location;
+  const isCoach = user?.athlete?.type?.toString() == 'coach';
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => positions.map(p => ({ value: p, label: p.toUpperCase(), key: p }));
   const options = preparePositionsToSelect(positions)
 
-
   // Effects
+  useEffect(() => {
+    function stripeHandler() {
+      isCoachAccountEnabled()
+      stripeIdAndAccountLinkCreation()
+    }
+    if (isCoach) stripeHandler();
+  }, [])
+
   useEffect(() => {
     if (isEmpty(user)) return history.push("/")
 
@@ -65,7 +77,52 @@ export default function Profile() {
     data.location = location
   }, [location])
 
+  //
   // Auxiliary
+  //
+
+  // a function that checks if the current coach profile has added their acct credentials
+  const isCoachAccountEnabled = () => {
+    if (!user.stripeId) {
+      return false
+    }
+    function getAccountEnabled() {
+      let stripeId = user?.stripeId;
+      axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
+        .then((res) => {if (res.data) setIsEnabled(true)});
+    }
+    return getAccountEnabled();
+  }
+
+  // a function that handles the logic of calling generateStripeId and generateStripeAcctLink accordingly
+  const stripeIdAndAccountLinkCreation = () => {
+    let stripeId = user?.stripeId;
+    if (!stripeId) {
+      generateStripeId().then((stripeId) => generateStripeAcctLink(stripeId));
+    }
+  }
+
+  // generate a link for a coach to initialize their bank account data with us
+  const generateStripeAcctLink = (stripeId) => {
+    const url = `api/v1/stripe/accountLink/${stripeId}`;
+    axios.get(url)
+      .then(res =>  {
+        setProcessingAcctLink(false);
+        setAccountLink(res.data.url);
+      })
+      .catch(err => `Failed to generate Stripe Connect link: ${err}`)
+  }
+
+  // create a basic stripeId for a first-time coach
+  const generateStripeId = async () => {
+    if (!user.stripeId) {
+      let url = '/api/v1/stripe/generateStripeClient/' + user._id
+      return await axios.post(url)
+        .then((res) => {console.log("created stripe ID"); return res.data.stripeId})
+        .catch((err) => console.log(`Failed to generate stripeId for coach: ${err}`));
+    }
+  }
+
   // ** Form input
   const formInput = (name, type, label) => {
     return (
@@ -150,7 +207,7 @@ export default function Profile() {
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        const newUrl = `${s3Config.bucketURL}/${data.key}`;
+        const newUrl = `${s3Config.bucketURL}/${data.Key}`;
         updateProfile({ picture: newUrl });
       }
     })
@@ -373,7 +430,16 @@ export default function Profile() {
       <div className="row my-4">
         <div className="col-12 d-flex justify-content-between my-2">
           <h4>Upcoming sessions</h4>
-          {user.athlete && user.athlete.type === "coach" &&
+          {
+            isCoach && !isEnabled &&
+            <a href={processingAcctLink ? undefined : accountLink}>
+              <button style={processingAcctLink ? {...styles.connectStripeButton, opacity: '0.3'} : styles.connectStripeButton}>
+                <span style={styles.connectStripeButtonSpan}>Connect with Stripe</span>
+              </button>
+            </a>
+          }
+          {
+            isCoach && isEnabled &&
             <Link to="/sessions/new" className="btn btn-primary my-2 my-md-0">Create a session</Link>
           }
         </div>

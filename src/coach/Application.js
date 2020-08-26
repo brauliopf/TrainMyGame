@@ -59,7 +59,8 @@ export default function Application() {
     if (Object.entries(user).length === 0) return;
     setData({
       dob: user.athlete && user.athlete.dob.split("T")[0], email: user.email, gender: user.gender,
-      name: user.name, picture: user.picture, phone: user.phone, position: user.athlete && user.athlete.position
+      name: user.name, picture: user.picture, phone: user.phone, position: user.athlete && user.athlete.position,
+
     });
     setLocation(user.location);
   }, [user])
@@ -143,7 +144,7 @@ export default function Application() {
         if (data.picture === "" || data.picture.search("/temporary/") > 0) {
           const source = (data.picture.search("/temporary/") > 0) ?
             `${s3Config.bucketName}/avatar/temporary/${data.picture.split("temporary/")[1]}` :
-            `${s3Config.bucketURL}/avatar/default/03.png`
+            `${s3Config.bucketURL}/avatar/default/01.png`
           const params = {
             ACL: "public-read",
             Bucket: `${s3Config.bucketName}`,
@@ -165,7 +166,6 @@ export default function Application() {
         history.push('/');
       })
       .catch(err => {
-        console.log("HERERERE", err.response)
         if (err.response.data.error === "INVALID_CREDENTIALS") { handleSubmitError(err) }
       })
   }

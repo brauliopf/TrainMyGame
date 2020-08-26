@@ -33,7 +33,7 @@ export default function Search() {
     if (!user || (user.location && !user.location.geo)) return querySessions;
     let distanceFilteredSessions = querySessions
 
-    // 
+    //
     // coachSessions = { coach_id: [{session}] }
     const reducer = (allSessions, coachSessions) => {
       // init object element with coach_id as key

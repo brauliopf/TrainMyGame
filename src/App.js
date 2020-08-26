@@ -48,10 +48,11 @@ const App = () => {
   // initialize the global reducer
   const [state, dispatch] = useReducer(appReducer,
     {
-      auth: '',
+      auth: {},
       error: '',
-      layout: { modal: { display: false } },
-      payment: ''
+      layout: false,
+      payment: '',
+      alerts: []
     });
 
   // Side-effects

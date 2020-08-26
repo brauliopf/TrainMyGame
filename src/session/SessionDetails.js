@@ -34,6 +34,8 @@ export default function SessionDetails(props) {
     return text;
   }
 
+  console.log(session.participants);
+
   return (
     <div key={session._id}>
       {(session && coach) &&
