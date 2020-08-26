@@ -52,7 +52,7 @@ export default function Home() {
             <div className={"card-body"} style={isMobile ? styles.mobileAlignText : {}}>
               <h5 className="card-title">Think you're a qualified coach?</h5>
               <p className="card-text">Email us at <b>trainmygame3@gmail.com</b></p>
-              {/*<Link to="/coach/apply" className="btn btn-primary">Apply here</Link>*/}
+              <Link to="/coach/apply" className="btn btn-primary">Apply here</Link>
             </div>
             }
 

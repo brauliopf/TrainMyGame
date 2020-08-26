@@ -59,7 +59,8 @@ export default function Application() {
     if (Object.entries(user).length === 0) return;
     setData({
       dob: user.athlete && user.athlete.dob.split("T")[0], email: user.email, gender: user.gender,
-      name: user.name, picture: user.picture, phone: user.phone, position: user.athlete && user.athlete.position
+      name: user.name, picture: user.picture, phone: user.phone, position: user.athlete && user.athlete.position,
+
     });
     setLocation(user.location);
   }, [user])
@@ -165,7 +166,6 @@ export default function Application() {
         history.push('/');
       })
       .catch(err => {
-        console.log("HERERERE", err.response)
         if (err.response.data.error === "INVALID_CREDENTIALS") { handleSubmitError(err) }
       })
   }
