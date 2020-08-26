@@ -28,7 +28,7 @@ export default function Profile() {
   const [processingAcctLink, setProcessingAcctLink] = useState(true);
   const [isEnabled, setIsEnabled] = useState(false);
   const getLocation = () => location;
-  const isCoach = user?.athlete?.type.toString() == 'coach';
+  const isCoach = user?.athlete?.type?.toString() == 'coach';
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => positions.map(p => ({ value: p, label: p.toUpperCase(), key: p }));
@@ -98,10 +98,8 @@ export default function Profile() {
   const stripeIdAndAccountLinkCreation = () => {
     let stripeId = user?.stripeId;
     if (!stripeId) {
-      stripeId = generateStripeId();
+      generateStripeId().then((stripeId) => generateStripeAcctLink(stripeId));
     }
-
-    generateStripeAcctLink(stripeId);
   }
 
   // generate a link for a coach to initialize their bank account data with us
