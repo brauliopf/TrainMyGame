@@ -1,4 +1,7 @@
 export default {
+	disabledStripeButton: {
+		opacity: '0.3'
+	},
 	connectStripeButtonSpan: {
 		display: 'block',
 		position: 'relative',

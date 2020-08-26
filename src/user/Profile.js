@@ -24,23 +24,36 @@ export default function Profile() {
   const [sessions, setSessions] = useState([]); // [ {session} ]
   const [publicProfiles, setPublicProfiles] = useState({}); // { user_id: { name, picture} }
   const [location, setLocation] = useState({});
-  const [accountLink, setAccountLink] = useState({});
+  const [accountLink, setAccountLink] = useState('');
+  const [processingAcctLink, setProcessingAcctLink] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
   const getLocation = () => location;
+  const isCoach = user?.athlete?.type.toString() == 'coach';
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => positions.map(p => ({ value: p, label: p.toUpperCase(), key: p }));
   const options = preparePositionsToSelect(positions)
 
-  useEffect(()=>{
-    const url = `api/v1/stripe/accountLink/${user.stripeId}`;
-    axios.get(url).then(
-      (res) => {
-        console.log(res);
-        setAccountLink(res.data.url);
+  // TODO: test this and then delete
+  // useEffect(() => {
+  //   async function getAccountEnabled() {
+  //     let stripeId = user?.stripeId;
+  //     const isEnabled = await axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
+  //       .then((res) => {setIsEnabled(res.data)})
+  //   }
+  //   getAccountEnabled();
+  // }, [])
+
+  useEffect(() => {
+    async function stripeHandler() {
+      await isCoachAccountEnabled()
+        .then((_isEnabled) => setIsEnabled(_isEnabled));
+      debugger;
+      if (!isEnabled) {
+        stripeIdAndAccountLinkCreation().then();
       }
-    ).catch(
-      (err) => console.log(err)
-    )
+    }
+    if (isCoach) stripeHandler().then();
   }, [])
 
   // generate StripeIds for coaches
@@ -49,8 +62,7 @@ export default function Profile() {
     // and the manifestation of different JS object types because of the inconsistency
     // need to check if each field exists in order before checking for a deeper nested value
     if (user.athlete && user.athlete.type && user.athlete.type == "coach") {
-      let url = '/api/v1/stripe/generateStripeClient/' + user._id
-      axios.post(url);
+
     }
   }, []);
 
@@ -89,7 +101,51 @@ export default function Profile() {
     data.location = location
   }, [location])
 
+  //
   // Auxiliary
+  //
+
+  // a function that checks if the current coach profile has added their acct credentials
+  const isCoachAccountEnabled = async () => {
+    async function getAccountEnabled() {
+      let stripeId = user?.stripeId;
+      return await axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
+        .then((res) => {setIsEnabled(res.data)});
+    }
+    return getAccountEnabled();
+  }
+
+  // a function that handles the logic of calling generateStripeId and generateStripeAcctLink accordingly
+  const stripeIdAndAccountLinkCreation = async () => {
+    let stripeId = user?.stripeId;
+    if (!stripeId) {
+      stripeId = await generateStripeId();
+    }
+
+    generateStripeAcctLink(stripeId).then();
+  }
+
+  // generate a link for a coach to initialize their bank account data with us
+  const generateStripeAcctLink = async (stripeId) => {
+    const url = `api/v1/stripe/accountLink/${stripeId}`;
+    axios.get(url)
+      .then(res =>  {
+        setProcessingAcctLink(false);
+        setAccountLink(res.data.url)
+      })
+      .catch(err => `Failed to generate Stripe Connect link: ${err}`)
+  }
+
+  // create a basic stripeId for a first-time coach
+  const generateStripeId = async () => {
+    if (!user.stripeId) {
+      let url = '/api/v1/stripe/generateStripeClient/' + user._id
+      return await axios.post(url)
+        .then((res) => {console.log("created stripe ID"); return res.data.stripeId})
+        .catch((err) => console.log(`Failed to generate stripeId for coach: ${err}`));
+    }
+  }
+
   // ** Form input
   const formInput = (name, type, label) => {
     return (
@@ -174,7 +230,6 @@ export default function Profile() {
       if (err) {
         console.log("Error - picture upload: ", err);
       } else {
-        debugger;
         const newUrl = `${s3Config.bucketURL}/${data.Key}`;
         updateProfile({ picture: newUrl });
       }
@@ -267,8 +322,8 @@ export default function Profile() {
   return (
     <div id="profile">
 
-      <a href={accountLink}>
-        <button style={styles.connectStripeButton}>
+      <a href={processingAcctLink ? undefined : accountLink}>
+        <button style={processingAcctLink ? {...styles.connectStripeButton, opacity: '0.3'} : styles.connectStripeButton}>
           <span style={styles.connectStripeButtonSpan}>Connect with Stripe</span>
         </button>
       </a>
