@@ -12,7 +12,7 @@ export default function appReducer(state, action) {
     auth: authReducer(state.auth, action),
     error: errorReducer(state.error, action),
     layout: layoutReducer(state.layout, action),
-    payment: paymentReducer(state.payment, action)
+    //payment: paymentReducer(state.payment, action)
   }
 }
 
@@ -89,18 +89,5 @@ function errorReducer(state, action) {
       return 'Failed to authenticate'
     default:
       return state
-  }
-}
-
-// application reducer: receives state and action and returns
-// the a single global state object
-// reducer Y must return state for action taken by reducer X
-export default function appReducer(state, action) {
-  return {
-    auth: authReducer(state.auth, action),
-    error: errorReducer(state.error, action),
-    layout: layoutReducer(state.layout, action),
-    //payment: paymentReducer(state.payment, action),
-    //alerts: alertReducer(state.alerts, action)
   }
 }
