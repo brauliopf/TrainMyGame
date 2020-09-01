@@ -26,7 +26,7 @@ const Checkout = () => {
   const [sessionLoadedOnce, setSessionLoadedOnce] = useState(false);
 
   // Control vars & UI elements
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -80,7 +80,7 @@ const Checkout = () => {
             setError(result.error.message)
           } else {
             // Send the token to your server.
-            stripeTokenHandler(result.token, _session);
+            stripeTokenHandler(result.token, _session).then();
           }
         })
       });
@@ -185,6 +185,8 @@ const Checkout = () => {
     ).catch(
       (err) => {
         console.log(err)
+        setProcessing(false)
+        setError(true)
       }
     );
   }
@@ -246,13 +248,16 @@ const Checkout = () => {
                     disabled={processing || !stripe}>
                     Pay
                   </button>
-                  {error && (
-                    <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">
-                      {error}
-                    </div>
-                  )}
                 </div>
               }
+
+              {error && (
+                <div className="col-12 mt-2 text-center bg-light">
+                  <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">
+                    Payment Failed. Please try again later.
+                  </div>
+                </div>
+              )}
 
               <div className="col-12 mt-2 text-center bg-light">
                 {succeeded && (
