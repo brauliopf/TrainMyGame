@@ -4,6 +4,7 @@ import { Context } from '../Contexts'
 import { useParams } from "react-router";
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import styles from '../styles/Checkout';
 
 const Checkout = () => {
 
@@ -72,6 +73,7 @@ const Checkout = () => {
       const form = document.getElementById('payment-form');
       form.addEventListener('submit', function(event) {
         event.preventDefault();
+        setProcessing(true);
         stripe.createToken(card).then(function(result) {
           if (result.error) {
             // Inform the customer that there was an error.
@@ -144,7 +146,7 @@ const Checkout = () => {
               {session.participants &&
                 <div className="position-relative" style={{ height: "60px", width: "100px", left: "-10px" }}>
                   {session.participants.map((p, index) => (index < 3 &&
-                    <div className="d-flex" key={p}>
+                    <div className="d-flex" key={index}>
                       <img className="rounded-circle img-thumbnail position-absolute" alt={publicProfiles[p].name} src={publicProfiles[p].picture} style={{ maxWidth: "60px", maxHeight: "60px", position: "absolute", left: (25 * index + "px") }} />
                     </div>)
                   )}
@@ -174,10 +176,15 @@ const Checkout = () => {
         'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
       }
     }).then(
-      res => setProcessing(false)
+      () => {
+        setProcessing(false)
+        setSucceeded(true)
+      }
+    ).catch(
+      (err) => {
+        console.log(err)
+      }
     );
-
-    setProcessing(true);
   }
 
   if (sessionNotLoaded()) {
@@ -230,9 +237,10 @@ const Checkout = () => {
 
               <div className="col-12 mt-2 d-flex flex-column align-items-end">
                 <button
+                  style={processing ? styles.disabledPayButton : {}}
                   className="btn-primary w-25 m-2"
                   id="submit"
-                  disabled={!stripe || processing}
+                  disabled={processing || !stripe}
                 >Pay</button>
                 {error && (
                   <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">

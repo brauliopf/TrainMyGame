@@ -140,8 +140,8 @@ const Session = () => {
               <strong>Participants</strong><hr />
 
               <div className="row" id="session-info">
-                {!isEmpty(publicProfiles) && session.participants.map(p => (
-                  <div className="col-12 col-md-6 d-flex d-row mt-2" key={p}>
+                {!isEmpty(publicProfiles) && session.participants.map((p, idx) => (
+                  <div className="col-12 col-md-6 d-flex d-row mt-2" key={idx}>
                     <img className="rounded-circle img-thumbnail" alt={publicProfiles[p].name} src={publicProfiles[p].picture} style={{ maxWidth: "120px", maxHeight: "120px" }} />
                     <div className="row d-flex flex-column my-auto ml-2 h-100">
                       <div className="col">
