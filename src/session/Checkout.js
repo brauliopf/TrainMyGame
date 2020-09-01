@@ -179,6 +179,8 @@ const Checkout = () => {
       () => {
         setProcessing(false)
         setSucceeded(true)
+        dispatch({ type: "PAYMENT_AUTHORIZED", data: { session: session._id, user: state.auth.user._id } });
+        setTimeout(function () { history.push(`/sessions/${session._id}`) }, 3000);
       }
     ).catch(
       (err) => {
@@ -235,19 +237,22 @@ const Checkout = () => {
                 </div>
               </fieldset>
 
-              <div className="col-12 mt-2 d-flex flex-column align-items-end">
-                <button
-                  style={processing ? styles.disabledPayButton : {}}
-                  className="btn-primary w-25 m-2"
-                  id="submit"
-                  disabled={processing || !stripe}
-                >Pay</button>
-                {error && (
-                  <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">
-                    {error}
-                  </div>
-                )}
-              </div>
+              {succeeded ||
+                <div className="col-12 mt-2 d-flex flex-column align-items-end">
+                  <button
+                    style={processing ? styles.disabledPayButton : {}}
+                    className="btn-primary w-25 m-2"
+                    id="submit"
+                    disabled={processing || !stripe}>
+                    Pay
+                  </button>
+                  {error && (
+                    <div id='card-errors' className="card-error bg-light text-danger p-2" role="alert">
+                      {error}
+                    </div>
+                  )}
+                </div>
+              }
 
               <div className="col-12 mt-2 text-center bg-light">
                 {succeeded && (

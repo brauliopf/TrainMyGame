@@ -12,7 +12,7 @@ export default function appReducer(state, action) {
     auth: authReducer(state.auth, action),
     error: errorReducer(state.error, action),
     layout: layoutReducer(state.layout, action),
-    //payment: paymentReducer(state.payment, action)
+    payment: paymentReducer(state.payment, action)
   }
 }
 
@@ -73,15 +73,16 @@ function layoutReducer(state, action) {
 }
 
 // TODO: write a payment reducer that works with the current application
-// function paymentReducer(state, action) {
-//   switch (action.type) {
-//     case PAYMENT_AUTHORIZED:
-//       axios.put(`/api/v1/orders/${action.data.order}`, { status: "authorized" })
-//       axios.put(`/api/v1/sessions/${action.data.session}`, { new_participant: action.data.user })
-//     default:
-//       return state;
-//   }
-// }
+function paymentReducer(state, action) {
+  switch (action.type) {
+    case PAYMENT_AUTHORIZED:
+      // TODO: commented-out because I don't know what it does
+      //axios.put(`/api/v1/orders/${action.data.order}`, { status: "authorized" })
+      axios.put(`/api/v1/sessions/${action.data.session}`, { new_participant: action.data.user })
+    default:
+      return state;
+  }
+}
 
 function errorReducer(state, action) {
   switch (action.type) {
