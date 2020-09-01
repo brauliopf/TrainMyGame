@@ -1,6 +1,6 @@
 // React and Hooks
 import React, { useEffect, useReducer } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import {BrowserRouter as Router, HashRouter, Route, Switch} from 'react-router-dom';
 import axios from 'axios';
 
 // Stripe
@@ -71,7 +71,7 @@ const App = () => {
   // console.log(state)
   return (
     <Context.Provider value={{ state, dispatch }}>
-      <Router>
+      <HashRouter>
         <HorizontalNav />
         <AuthModal />
         <div className="mt-5 pt-4"></div>
@@ -95,7 +95,7 @@ const App = () => {
           </Switch>
           <div className="mt-5 row" id="footer"></div>
         </div>
-      </Router>
+      </HashRouter>
     </Context.Provider >
   );
 }
