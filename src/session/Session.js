@@ -67,7 +67,7 @@ const Session = () => {
       <div className="row">
         <div className="col-12 d-flex justify-content-between">
           <p className="h3">{session.title}</p>
-          {((session.coach && session.coach === user._id) || (session.participants && session.participants.includes(user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
+          {((session?.coach === user._id) || (session.participants && session.participants.includes(user._id))) ? <div className="py-2 px-1 text-success">You're in. Get ready!</div> :
             <Link className="btn btn-primary active" to="#" onClick={() => onClickJoin()}>
               <i className="fas fa-play" /> Join
             </Link>
