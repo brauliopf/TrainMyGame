@@ -24,7 +24,7 @@ export default function CreateSession() {
   }, [location])
 
   // Auxiliary
-  const formInput = (name, type, label, required) => {
+  const formInput = (name, type, label, required = false, placeholder = "") => {
     return (
       <div className="input-group mb-2">
         <div className="input-group-prepend">
@@ -34,6 +34,7 @@ export default function CreateSession() {
           label={label}
           type={type}
           name={name}
+          placeholder={placeholder}
           className='form-control'
           value={(data && data[name]) || ""}
           onChange={e => setData({ ...data, [e.target.name]: e.target.value })}
@@ -59,7 +60,7 @@ export default function CreateSession() {
       </div>)
   }
   const submitSession = data => {
-    setData({ ...data, price: data.price * 100 })
+    setData({ ...data, price: data.price })
     axios.post("/api/v1/sessions/", data)
       .then(res => history.push(`/sessions/${res.data.session._id}`))
   }
@@ -75,7 +76,10 @@ export default function CreateSession() {
             <div className="form-row">
 
               <div className="col-12">
-                {formInput("title", "text", "Title", true)}
+                {formInput("title", "text", "Title", true, '(For example: "Shooting and Agility Training")')}
+              </div>
+              <div className="col-12">
+                {formInput("notes", "text", "Notes", true, '(Such as: "Helmet and gloves required.")')}
               </div>
               <div className="w-100 mx-1">
                 <LocationInput location={getLocation} setLocation={setLocation} />

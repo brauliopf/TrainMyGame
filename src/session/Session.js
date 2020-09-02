@@ -104,12 +104,17 @@ const Session = () => {
                       </li>}
                   </ul>
                 </div>
-                <div className="col mt-4 mt-md-0" id="coach-bio">
-                  <div className="bg-light p-3 border" id="session-notes">
-                    <div className="h6">Notes:</div>
-                    {session.notes && session.notes.map(note => <div className="my-2 p-2 w-100">{note}</div>)}
+
+                {
+                  session.notes &&
+                  <div className="col mt-4 mt-md-0" id="session-notes">
+                    <div className="bg-light p-3 border">
+                      <div className="h6">Notes:</div>
+                      <div className="my-2 p-2 w-100">{session?.notes}</div>
+                    </div>
                   </div>
-                </div>
+                }
+
               </div>
             </div>
 
