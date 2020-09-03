@@ -84,15 +84,12 @@ export default function Profile() {
   // a function that checks if the current coach profile has added their acct credentials
   const isCoachAccountEnabled = () => {
     if (!user.stripeId) {
-      console.log("user does not have stripe id")
       return false
     }
-    console.log("user has stripe id: " + user.stripeId)
     function getAccountEnabled() {
       let stripeId = user?.stripeId;
       axios.get(`api/v1/stripe/checkAccountEnabled/${stripeId}`)
         .then((res) => {
-          console.log("is enabled: " + res.data)
           if (res.data) setIsEnabled(true)
         });
     }
@@ -110,7 +107,6 @@ export default function Profile() {
 
   // generate a link for a coach to initialize their bank account data with us
   const generateStripeAcctLink = (stripeId) => {
-    console.log("Attempting to create link...")
     const url = `api/v1/stripe/accountLink/${stripeId}`;
     axios.get(url)
       .then(res =>  {
