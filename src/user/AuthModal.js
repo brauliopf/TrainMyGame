@@ -6,6 +6,8 @@ import Select from 'react-select';
 import { positions } from '../util/input';
 import { s3Config } from '../util/s3';
 import classnames from 'classnames'
+import $ from "jquery";
+import styles from '../styles/Global'
 
 export default function AuthModal() {
 
@@ -13,8 +15,20 @@ export default function AuthModal() {
   const [data, setData] = useState({ formRegister: true });
   const [errors, setErrors] = useState({ inputs: [], message: "" })
   const options = positions.map(p => ({ value: p, label: p, key: p }));
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
 
   // Auxiliary
+  const validateConfPassword = () => {
+    const getPasswordFieldVal = (inputFieldName) => {
+      return $('#registration-form').find(`input[name=${inputFieldName}]`).val()
+    }
+    if (!(getPasswordFieldVal('password') === getPasswordFieldVal('confirmPassword'))) {
+      setPasswordMismatch(true);
+    } else {
+      setPasswordMismatch(false);
+    }
+  }
+
   const authenticate = (user) => {
     // Set register payload
     if (user.formRegister) {
@@ -81,7 +95,7 @@ export default function AuthModal() {
                 <span aria-hidden="true">&times;</span>
               </button>
               <h4 className="title">{data.formRegister ? "Register" : "Sign In"}</h4>
-              <form className="mt-4" onSubmit={e => { e.preventDefault(); authenticate(data); }}>
+              <form className="mt-4" onSubmit={e => { e.preventDefault(); authenticate(data); }} id="registration-form">
                 {data.formRegister &&
                   <div className=""> {/* INPUT: name */}
                     {formInput("name", "text", "Name", true, "", "Name must be provided")}
@@ -89,8 +103,21 @@ export default function AuthModal() {
                 <div className="mt-2"> {/* INPUT: email */}
                   {formInput("email", "email", "Email", true, "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", "This email is already taken. Is that you? Please sign-in.")}
                 </div>
-                <div className="mt-2"> {/* INPUT: password */}
+                {passwordMismatch &&
+                <p className="col-12" style={styles.tmgInputError}>*Passwords must match.</p>
+                }
+                <div className="mt-2">
                   {formInput("password", "password", "Password", true, ".{4,}", "Four or more characters")}
+                </div>
+                <div className="mt-2">
+                  <input
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type="password"
+                    onBlur={e => validateConfPassword()}
+                    className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes('confirmPassword') })}
+                    required={true}
+                  />
                 </div>
 
                 {data.formRegister &&

@@ -5,6 +5,7 @@ export default {
 	},
 	tmgInputError: {
 		color: 'red',
-		marginBottom: '0px'
+		marginBottom: '0px',
+		paddingTop: '10px'
 	}
 }
