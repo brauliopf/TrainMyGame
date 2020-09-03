@@ -52,6 +52,7 @@ const LocationInput = (props) => {
 
   const { state, dispatch } = useContext(Context);
   const [query, setQuery] = useState("");
+  const [scriptLoaded, setScriptLoaded] = useState(false);
   const autoCompleteRef = useRef(null);
 
   const componentForm = {
@@ -63,10 +64,15 @@ const LocationInput = (props) => {
   }
 
   useEffect(() => {
-    loadScript(
-      `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_JS_API_KEY}&libraries=places`,
-      () => handleScriptLoad(updateLocation, autoCompleteRef)
-    );
+    if (!scriptLoaded) {
+      loadScript(
+        `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_JS_API_KEY}&libraries=places`,
+        () => {
+          handleScriptLoad(updateLocation, autoCompleteRef)
+          setScriptLoaded(true);
+        }
+      );
+    }
   }, []);
 
   const updateLocation = (place) => {
