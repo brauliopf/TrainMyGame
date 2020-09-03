@@ -10,6 +10,8 @@ import LocationInput from '../user/LocationInput.js';
 import ExperiencesInput from './ExperiencesInput';
 import { s3Config } from '../util/s3';
 import classnames from 'classnames'
+import styles from '../styles/Global'
+import $ from 'jquery'
 
 AWS.config.update({ region: s3Config.region, accessKeyId: s3Config.accessKeyId, secretAccessKey: s3Config.secretAccessKey });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
@@ -34,7 +36,8 @@ export default function Application() {
   const getLocation = () => location;
   const [experiences, setExperiences] = useState([]);
   const getExperiences = () => experiences;
-  const [errors, setErrors] = useState({ inputs: [], message: "" })
+  const [errors, setErrors] = useState({ inputs: [], message: "" });
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
 
   // Auxilliary vars
   const preparePositionsToSelect = positions => {
@@ -65,11 +68,22 @@ export default function Application() {
     setLocation(user.location);
   }, [user])
 
+  const validateConfPassword = () => {
+    const getPasswordFieldVal = (inputFieldName) => {
+      return $('#coach-application-form').find(`input[name=${inputFieldName}]`).val()
+    }
+    if (!(getPasswordFieldVal('password') === getPasswordFieldVal('confirmPassword'))) {
+      setPasswordMismatch(true);
+    } else {
+      setPasswordMismatch(false);
+    }
+  }
+
   const formInput = (name, type, label, required, pattern) => {
     return (
       <div className="input-group mb-2">
         <div className="input-group-prepend">
-          <label className="input-group-text" htmlFor={name}>{label}{required ? "*" : ""}</label>
+          <label style={styles.tmgFormLabel} className="input-group-text" htmlFor={name}>{label}{required ? "*" : ""}</label>
         </div>
         <input
           label={label}
@@ -100,7 +114,7 @@ export default function Application() {
     return (
       <div className="input-group mb-2">
         <div className="input-group-prepend">
-          <label className="input-group-text" id="gender">Gender</label>
+          <label style={styles.tmgFormLabel} className="input-group-text" id="gender">Gender</label>
         </div>
         <select
           className="browser-default custom-select"
@@ -179,16 +193,16 @@ export default function Application() {
 
           <form className="mt-2" onSubmit={e => { e.preventDefault(); !isEmpty(location) && submitApplication(data) }} id="coach-application-form">
             <div className="row border" id="bio">
-              <div className="col-12 col-md-4 col-lg-3 pt-4 d-flex justify-content-center" id="profile-picture">
+              <div className="col-12 pt-4 d-flex justify-content-center" id="profile-picture">
                 <ProfilePicUpload setApplicationPic={setApplicationPic} />
               </div>
-              <div className="col-12 col-md-8 col-lg-9 p-4">
+              <div className="col-12 p-4">
                 <p>Complete your application. Once a submission is received, it will be reviewed by the T.M.G. Team</p>
                 <div className="form-row">
-                  <div className="col-12 col-lg-7">
+                  <div className="col-12">
                     <div className="input-group mb-2">
                       <div className="input-group-prepend">
-                        <label className="input-group-text" id="email">Email</label>
+                        <label style={styles.tmgFormLabel} className="input-group-text" id="email">Email</label>
                       </div>
                       <input
                         label="Email"
@@ -205,25 +219,46 @@ export default function Application() {
                       </div>
                     </div>
                   </div>
-                  {isEmpty(user) &&
-                    <div className="col-12 col-lg-5">
-                      {formInput("password", "password", "Password")}
-                    </div>}
                 </div>
+                {passwordMismatch &&
+                  <p className="col-12" style={styles.tmgInputError}>*Passwords must match.</p>
+                }
+                {isEmpty(user) &&
+                <div id="password-container" className="form-row">
+                  <div className="col-12 col-lg-6">
+                    {formInput("password", "password", "Password")}
+                  </div>
+                  <div className="col-12 col-lg-6">
+                    <div className="input-group mb-2">
+                      <div className="input-group-prepend">
+                        <label style={styles.tmgFormLabel} className="input-group-text">Confirm Password</label>
+                      </div>
+                      <input
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        type="password"
+                        onBlur={e => validateConfPassword()}
+                        className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes('confirmPassword') })}
+                        required={true}
+                      />
+                    </div>
+                  </div>
+                </div>
+                }
                 <hr />
                 <div className="form-row">
-                  <div className="col-12 col-lg-7">
+                  <div className="col-12 col-lg-6">
                     {formInput("name", "name", "Name")}
                   </div>
-                  <div className="col-12 col-lg-5">
-                    {formInput("phone", "tel", "Contact")}
+                  <div className="col-12 col-lg-6">
+                    {formInput("phone", "tel", "Phone Number")}
                   </div>
                 </div>
                 <div className="form-row">
-                  <div className="col-12 col-lg-8">
+                  <div className="col-12 col-lg-6">
                     {formInput("dob", "date", "Date of Birth")}
                   </div>
-                  <div className="col-12 col-lg-4">
+                  <div className="col-12 col-lg-6">
                     {genderInput()}
                   </div>
                 </div>
