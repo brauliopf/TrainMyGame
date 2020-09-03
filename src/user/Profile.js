@@ -110,7 +110,7 @@ export default function Profile() {
         setProcessingAcctLink(false);
         setAccountLink(res.data.url);
       })
-      .catch(err => `Failed to generate Stripe Connect link: ${err}`)
+      .catch(err => console.log(`Failed to generate Stripe Connect link: ${err}`))
   }
 
   // create a basic stripeId for a first-time coach
