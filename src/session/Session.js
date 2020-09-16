@@ -92,7 +92,7 @@ const Session = () => {
                     {session.agenda &&
                       <li className="list-group-item">Time: {
                         `${(new Date(session.agenda.start)).toLocaleDateString()}:
-                        ${(new Date(session.agenda.start)).toLocaleTimeString()}`
+                        ${(new Date(session.agenda.start)).toLocaleTimeString('en-US')}`
                       }
                       </li>}
                     {session.capacity && session.participants &&
