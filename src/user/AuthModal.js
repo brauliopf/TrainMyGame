@@ -103,22 +103,25 @@ export default function AuthModal() {
                 <div className="mt-2"> {/* INPUT: email */}
                   {formInput("email", "email", "Email", true, "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", "This email is already taken. Is that you? Please sign-in.")}
                 </div>
-                {passwordMismatch &&
+                { passwordMismatch && data.formRegister &&
                 <p className="col-12" style={styles.tmgInputError}>*Passwords must match.</p>
                 }
                 <div className="mt-2">
                   {formInput("password", "password", "Password", true, ".{4,}", "Four or more characters")}
                 </div>
-                <div className="mt-2">
-                  <input
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type="password"
-                    onBlur={e => validateConfPassword()}
-                    className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes('confirmPassword') })}
-                    required={true}
-                  />
-                </div>
+                {
+                  data.formRegister &&
+                  <div className="mt-2">
+                    <input
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type="password"
+                      onBlur={e => validateConfPassword()}
+                      className={classnames('form-control', { 'is-invalid': errors.inputs && errors.inputs.includes('confirmPassword') })}
+                      required={true}
+                    />
+                  </div>
+                }
 
                 {data.formRegister &&
                   <div className="row mt-2 d-flex form-row justify-content-between">
