@@ -7,14 +7,14 @@ const sessionListingItems = sessions => (
   <ul className="list-group">
     {sessions.map(session => {
       if (!session || !session.agenda) return;
-      const { dateString, time_str, slots } = getSessionParams(session);
+      const { dateString, time, slots } = getSessionParams(session);
       return (
         <li className="list-group-item p-1" key={session._id}>
           <Link className="dropdown-item" to={`/sessions/${session._id}`}>
             <div className="">
               {`${session.title || "Lacrosse Session"}`}
             </div>
-            <div className="">{`${dateString}, ${time_str} – Open slots: ${slots}`}</div>
+            <div className="">{`${dateString}, ${time} – Open slots: ${slots}`}</div>
           </Link>
         </li>
       )
@@ -25,20 +25,20 @@ const sessionListingItems = sessions => (
 
 const getSessionParams = session => {
   const date = new Date(session.agenda.start);
-  const time = { hours: date.getUTCHours() - date.getTimezoneOffset() / 60, minutes: date.getUTCMinutes() }
+  const time = date.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: true });
   const day = date.getDate();
   const dateString =
     `${months[date.getMonth()]}. ${day}${day === 1 ? "st" : day === 2 ? "nd" : day === 3 ? "rd" : "th"}`;
-  const time_str =
-    ((time.hours > 12) ? `${time.hours - 12}` : `${time.hours}`)
-      .concat(`:${time.minutes < 10 && "0"}${time.minutes}${(time.hours > 12) ? "pm" : "am"}`)
+  // const time_str =
+  //   ((time.hours > 12) ? `${time.hours - 12}` : `${time.hours}`)
+  //     .concat(`:${time.minutes < 10 && "0"}${time.minutes}${(time.hours > 12) ? "pm" : "am"}`)
   const slots = session.capacity ? session.capacity.max - ((session.participants && session.participants.length) || 0) : "#";
-  return { dateString, time_str, slots }
+  return { dateString, time, slots }
 }
 
 const getCoachAddress = location => {
   if (!location) return;
-  return `${location.complement} ${location.street}, ${location.city}, ${location.state} ${location.zipcode}.`
+  return `${location?.complement ? location.complement : ''} ${location.street}, ${location.city}, ${location.state} ${location.zipcode}.`
 }
 
 export default function ListingItem(props) {
