@@ -81,6 +81,10 @@ export default function Profile() {
   // Auxiliary
   //
 
+  const editSession = (sessionId) => {
+    history.push(`/edit-session/${sessionId}`)
+  }
+
   // a function that checks if the current coach profile has added their acct credentials
   const isCoachAccountEnabled = () => {
     if (!user.stripeId) {
@@ -227,7 +231,7 @@ export default function Profile() {
     return `${location.complement} ${location.street}, ${location.city}, ${location.state} ${location.zipcode}.`
   }
   const getUpcomingSessions = (user, sessions) => {
-    if (user.athlete && user.athlete.type === "coach") {
+    if (isCoach) {
       return (
         isEmpty(sessions) ?
           <div className="w-100 border text-secondary text-center  p-4">
@@ -249,8 +253,11 @@ export default function Profile() {
 
     return (
       <div className="col-12 mb-2" key={session._id}>
+        <style>
+          {`div.session-row:hover{outline:2px solid #007bff}`}
+        </style>
         {(session && others && session.agenda) &&
-          <div className="row border bg-light">
+          <div className="row border bg-light session-row" onClick={() => editSession(session._id)}>
 
             <div className="col-12 col-md-2 mt-2 text-center">
               <CoachCardId coach={coach} detail={false} />
@@ -285,12 +292,11 @@ export default function Profile() {
               <div className="my-2">
                 Current price: <br />
                 <span className="font-weight-bold">
-                  US$ {(session.price / 100)
+                  US$ {(session.price)
                     .toLocaleString(navigator.language, { minimumFractionDigits: 0 })}{" "}
                 </span>
               </div>
             </div>
-
           </div>
         }
       </div>

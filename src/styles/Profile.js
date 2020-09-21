@@ -1,4 +1,9 @@
 export default {
+	hoverableElement: {
+		"&:hover": {
+			backgroundColor: "#ffffff !important"
+		}
+	},
 	disabledStripeButton: {
 		opacity: '0.3'
 	},

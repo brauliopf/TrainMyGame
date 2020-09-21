@@ -61,7 +61,7 @@ export default function SessionDetails(props) {
                 <div className="my-2 justify-content-center d-flex flex-row flex-md-column flex-lg-row">
                   <div className="mx-1">Current price:</div>
                   <div className="font-weight-bold">
-                    US$ {(session.price / 100)
+                    US$ {(session.price)
                       .toLocaleString(navigator.language, { minimumFractionDigits: 0 })}{" "}
                   </div>
                 </div>

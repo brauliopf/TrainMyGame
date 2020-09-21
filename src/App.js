@@ -23,6 +23,7 @@ import Home from "./layout/Home";
 import About from "./layout/About";
 import FAQ from "./layout/FAQ";
 import AlertBox from "./layout/AlertBox";
+import EditSession from "./coach/EditSession";
 
 // contexts && reducers
 import { Context } from './Contexts'
@@ -89,6 +90,7 @@ const App = () => {
             <Route exact path="/inbox" component={Inbox} />
             <Route exact path="/coach/apply" component={Application} />
             <Route exact path="/admin" component={Admin} />
+            <Route exact path="/edit-session/:id" component={CreateSession} />
             <Elements stripe={stripePromise}>
               <Route exact path="/sessions/:id/join" component={Checkout} />
             </Elements>

@@ -154,7 +154,7 @@ const Checkout = () => {
               <div className="my-2 w-100 d-flex flex-column text-right">
                 Current price:
                 <span className="font-weight-bold">
-                  US$ {(session.price / 100)
+                  US$ {(session.price)
                     .toLocaleString(navigator.language, { minimumFractionDigits: 2 })}{" "}
                 </span>
               </div>
